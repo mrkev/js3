@@ -58,7 +58,7 @@ export class DOMRep {
   }
 }
 
-function evaluate(src: string): EvaledValue {
+function evaluate(src: string): EvaledValue | undefined {
   try {
     // Transform the expression
     const wrappedSrc = `function eCell () {/** @jsx DOMRep.createElement */ return ${src}; }`;
@@ -77,9 +77,11 @@ function evaluate(src: string): EvaledValue {
         result instanceof DOMRep ||
         typeof result === "string" ||
         typeof result === "number" ||
-        typeof result === "boolean"
+        typeof result === "boolean" ||
+        typeof result === "undefined"
       )
     ) {
+      console.log("result", result);
       throw new Error(
         "Only booleans, numbres, strings and inputs are supported"
       );
@@ -97,6 +99,7 @@ export class Cell {
 
   // The data this cell renders
   renderValue: EvaledValue;
+
   // The value read by other cells (ie, number for an input range)
   _primitiveValue: Primitive;
   get primitiveValue() {
@@ -129,7 +132,11 @@ export class Cell {
   };
 
   evaluate() {
-    this.renderValue = evaluate(this.strValue);
+    const evaluated = evaluate(this.strValue);
+    this.renderValue =
+      typeof evaluated === "undefined"
+        ? (this.renderValue = "")
+        : (this.renderValue = evaluated);
 
     if (this.renderValue instanceof DOMRep) {
       this.renderValue.onChange = this.cellHTMLInputValueChanged;

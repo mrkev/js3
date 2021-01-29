@@ -7,7 +7,9 @@ import { Sheet } from "./model/Sheet";
 import { CellElem } from "./CellElem";
 
 const SIZE = 2;
-const defaultSheet = Sheet.ofDimensions(SIZE, SIZE);
+const defaultSheet = Sheet.ofDimensions(SIZE, SIZE)
+  .set(0, 0, '<input type="range"/>')
+  .set(0, 1, '"cool"');
 
 function App() {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);

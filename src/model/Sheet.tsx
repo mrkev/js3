@@ -14,9 +14,7 @@ export class Sheet {
   static ofDimensions(rows: number, cols: number) {
     const sheet = new Sheet();
     sheet._grid = [...new Array(rows)].map((_, r) =>
-      [...new Array(cols)].map(
-        (_, c) => new Cell(sheet, r, c, String(c + r * rows))
-      )
+      [...new Array(cols)].map((_, c) => new Cell(sheet, r, c))
     );
     return sheet;
   }
