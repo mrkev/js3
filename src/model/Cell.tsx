@@ -58,7 +58,11 @@ export class DOMRep {
   }
 }
 
-function evaluate(src: string, sheet: Sheet): EvaledValue | undefined {
+function evaluate(
+  src: string,
+  sheet: Sheet,
+  calledFromCell: Cell
+): EvaledValue | undefined {
   try {
     // Transform the expression
     const wrappedSrc = `function eCell () {
@@ -72,8 +76,10 @@ function evaluate(src: string, sheet: Sheet): EvaledValue | undefined {
 
     // eslint-disable-next-line no-new-func
     const funcExpr = new Function("DOMRep", "CELL", "return " + transformedSrc);
-    console.log(funcExpr);
-    const result = funcExpr(DOMRep, sheet.CELL)();
+    const result = funcExpr(
+      DOMRep,
+      sheet.getCELLAccessorProxy(calledFromCell)
+    )();
     if (
       !(
         result instanceof DOMRep ||
@@ -115,6 +121,12 @@ export class Cell {
   sheet: Sheet;
   row: number;
   col: number;
+  // Cells this cell sends data to. "children", in a dependency tree
+  feeds: Set<Cell> = new Set();
+  dependsOn: Set<Cell> = new Set();
+
+  cellDOMElement: HTMLDivElement | null = null;
+
   constructor(sheet: Sheet, row: number, col: number) {
     this.sheet = sheet;
     this.row = row;
@@ -130,8 +142,25 @@ export class Cell {
     this.primitiveValue = this.renderValue.getPrimitiveValue();
   };
 
+  // If I write CELL[0][0](), I depend on CELL[0][0]()
+  addDependency(dependency: Cell) {
+    this.dependsOn.add(dependency); // set
+    dependency.feeds.add(this);
+  }
+
+  removeDependency(dependency: Cell) {
+    this.dependsOn.delete(dependency);
+    dependency.feeds.delete(this);
+  }
+
   evaluate() {
-    const evaluated = evaluate(this.strValue, this.sheet);
+    // We don't know who we depend on now
+    this.dependsOn.forEach((dependency) => {
+      this.removeDependency(dependency);
+    });
+
+    // Eval the value, "undefined" renders the empty string
+    const evaluated = evaluate(this.strValue, this.sheet, this);
     this.renderValue =
       typeof evaluated === "undefined"
         ? (this.renderValue = "")
@@ -148,8 +177,7 @@ export class Cell {
   }
 
   /** Returns the HTML to be dangerously set in the cell DOM */
-  render(): string {
-    this.evaluate();
+  renderToString(): string {
     const result = this.renderValue;
 
     if (typeof result === "string") {
@@ -173,5 +201,24 @@ export class Cell {
     }
 
     return "X";
+  }
+
+  render() {
+    if (this.cellDOMElement == null) {
+      console.log("No element to render to");
+      return;
+    }
+
+    if (this.cellDOMElement.firstChild) {
+      this.cellDOMElement.removeChild(this.cellDOMElement.firstChild);
+    }
+
+    if (this.renderValue instanceof DOMRep) {
+      const node = this.renderValue.getDOM();
+      this.cellDOMElement.appendChild(node);
+    } else {
+      const node = document.createTextNode(this.renderToString());
+      this.cellDOMElement.appendChild(node);
+    }
   }
 }

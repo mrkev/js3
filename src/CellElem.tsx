@@ -18,7 +18,8 @@ export function CellElem({
     if (current == null) {
       return;
     }
-    const result = cell.render();
+    cell.evaluate();
+    const result = cell.renderToString();
 
     if (current.firstChild) {
       current.removeChild(current.firstChild);
@@ -35,7 +36,10 @@ export function CellElem({
 
   return (
     <div
-      ref={cellElem}
+      ref={(elem) => {
+        cellElem.current = elem;
+        cell.cellDOMElement = elem;
+      }}
       className={cx("cell", selected && "selected")}
       onClick={() => onClick(cell)}
     ></div>
