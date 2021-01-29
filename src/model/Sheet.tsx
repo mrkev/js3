@@ -89,7 +89,7 @@ export class Sheet {
         return undefined;
       },
       apply(target, thisArg, argumentsList) {
-        return cell.strValue;
+        return cell.primitiveValue;
       },
     });
   };

@@ -58,10 +58,11 @@ export class DOMRep {
   }
 }
 
-function evaluate(src: string): EvaledValue | undefined {
+function evaluate(src: string, sheet: Sheet): EvaledValue | undefined {
   try {
     // Transform the expression
-    const wrappedSrc = `function eCell () {/** @jsx DOMRep.createElement */ return ${src}; }`;
+    const wrappedSrc = `function eCell () {
+      /** @jsx DOMRep.createElement */ return ${src}; }`;
     const { code: transformedSrc } = (window as any).Babel.transform(
       wrappedSrc,
       {
@@ -70,8 +71,9 @@ function evaluate(src: string): EvaledValue | undefined {
     );
 
     // eslint-disable-next-line no-new-func
-    const funcExpr = new Function("DOMRep", "return " + transformedSrc);
-    const result = funcExpr(DOMRep)();
+    const funcExpr = new Function("DOMRep", "CELL", "return " + transformedSrc);
+    console.log(funcExpr);
+    const result = funcExpr(DOMRep, sheet.CELL)();
     if (
       !(
         result instanceof DOMRep ||
@@ -94,14 +96,14 @@ function evaluate(src: string): EvaledValue | undefined {
 
 export class Cell {
   // The raw string typed into the cell
-  strValue: string;
+  strValue: string = "";
   // set strValue, evaluate
 
   // The data this cell renders
-  renderValue: EvaledValue;
+  renderValue: EvaledValue = "";
 
   // The value read by other cells (ie, number for an input range)
-  _primitiveValue: Primitive;
+  _primitiveValue: Primitive = "";
   get primitiveValue() {
     return this._primitiveValue;
   }
@@ -113,13 +115,10 @@ export class Cell {
   sheet: Sheet;
   row: number;
   col: number;
-  constructor(sheet: Sheet, row: number, col: number, strValue = "") {
+  constructor(sheet: Sheet, row: number, col: number) {
     this.sheet = sheet;
     this.row = row;
     this.col = col;
-    this.strValue = strValue;
-    this.renderValue = "";
-    this._primitiveValue = "";
   }
 
   cellHTMLInputValueChanged = (e: Event) => {
@@ -132,7 +131,7 @@ export class Cell {
   };
 
   evaluate() {
-    const evaluated = evaluate(this.strValue);
+    const evaluated = evaluate(this.strValue, this.sheet);
     this.renderValue =
       typeof evaluated === "undefined"
         ? (this.renderValue = "")
