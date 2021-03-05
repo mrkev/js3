@@ -7,6 +7,10 @@ import { Cell } from "./Cell";
  */
 export class Sheet {
   _grid: Array<Array<Cell>> = [];
+  _rowSizes: { [row: number]: number } = {};
+  _colSizes: { [col: number]: number } = {};
+  _dims: { rows: number; cols: number } = { rows: 0, cols: 0 };
+
   constructor() {
     (window as any).sheet = this;
   }
@@ -16,6 +20,7 @@ export class Sheet {
     sheet._grid = [...new Array(rows)].map((_, r) =>
       [...new Array(cols)].map((_, c) => new Cell(sheet, r, c))
     );
+    sheet._dims = { rows, cols };
     return sheet;
   }
 
@@ -30,20 +35,78 @@ export class Sheet {
   }
 
   set(r: number, c: number, value: string): Sheet {
+    if (r >= this._dims.rows || c >= this._dims.cols) {
+      console.log(this._dims);
+      throw new Error(`Can't set value for non-existing cell at ${r}:${c}`);
+    }
     this._grid[r][c].strValue = value;
     return this.clone();
+  }
+
+  get(r: number, c: number): Cell | null {
+    if (r >= this._dims.rows || c >= this._dims.cols) {
+      return null;
+    }
+    const cell = this._grid[r][c];
+    return cell ? cell : null;
   }
 
   clone() {
     const sheet = new Sheet();
     sheet._grid = this._grid;
+    sheet._rowSizes = this._rowSizes;
+    sheet._colSizes = this._colSizes;
+    sheet._dims = this._dims;
     return sheet;
+  }
+
+  ///////////////////////// DISPLAY + SIZES //////////////////////////////
+
+  numRows() {
+    return this._dims.rows;
+  }
+
+  numCols() {
+    return this._dims.cols;
+  }
+
+  getExplicitRowHeight(row: number): number | null {
+    if (this._rowSizes[row] === undefined) {
+      return null;
+    } else {
+      return this._rowSizes[row];
+    }
+  }
+
+  setExplicitRowHeight(row: number, val: number | null) {
+    if (val === null) {
+      delete this._rowSizes[row];
+    } else {
+      this._rowSizes[row] = val;
+    }
+  }
+
+  getExplicitColWidth(col: number) {
+    if (this._colSizes[col] === undefined) {
+      return null;
+    } else {
+      return this._colSizes[col];
+    }
+  }
+
+  setExplicitColWidth(col: number, val: number | null) {
+    if (val === null) {
+      delete this._colSizes[col];
+    } else {
+      this._colSizes[col] = val;
+    }
   }
 
   ///////////////////////////// UPDATES ////////////////////////////////
 
   cellChanged(cell: Cell) {
-    console.log("changed", cell.row, cell.col, cell.primitiveValue);
+    // todo: investigate, does this get called on every re-render?
+    // console.log("changed", cell.row, cell.col, cell.primitiveValue);
     const toEval = new Set<Cell>();
     cell.feeds.forEach(function (fed) {
       toEval.add(fed);

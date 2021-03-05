@@ -2,15 +2,14 @@ import { cx } from "./util";
 import { useEffect } from "react";
 import { Cell } from "./model/Cell";
 
-export function CellElem({
-  cell,
-  onClick,
-  selected,
-}: {
+type Props = {
   cell: Cell;
   onClick: (cell: Cell) => void;
   selected: boolean;
-}) {
+  style: React.CSSProperties;
+};
+
+export function CellElem({ cell, onClick, selected, style }: Props) {
   useEffect(() => {
     cell.evaluate();
     cell.render();
@@ -18,6 +17,7 @@ export function CellElem({
 
   return (
     <div
+      style={style}
       ref={(elem) => {
         cell.cellDOMElement = elem;
       }}
