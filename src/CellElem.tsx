@@ -1,8 +1,7 @@
 import { cx } from "./util";
-import { useEffect, useRef } from "react";
-import { Cell, DOMRep } from "./model/Cell";
+import { useEffect } from "react";
+import { Cell } from "./model/Cell";
 
-// <input type="range" />
 export function CellElem({
   cell,
   onClick,
@@ -12,32 +11,14 @@ export function CellElem({
   onClick: (cell: Cell) => void;
   selected: boolean;
 }) {
-  const cellElem = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    const { current } = cellElem;
-    if (current == null) {
-      return;
-    }
     cell.evaluate();
-    const result = cell.renderToString();
-
-    if (current.firstChild) {
-      current.removeChild(current.firstChild);
-    }
-
-    if (cell.renderValue instanceof DOMRep) {
-      const node = cell.renderValue.getDOM();
-      current.appendChild(node);
-    } else {
-      const node = document.createTextNode(result);
-      current.appendChild(node);
-    }
+    cell.render();
   }, [cell, cell.strValue]);
 
   return (
     <div
       ref={(elem) => {
-        cellElem.current = elem;
         cell.cellDOMElement = elem;
       }}
       className={cx("cell", selected && "selected")}

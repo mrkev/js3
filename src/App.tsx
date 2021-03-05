@@ -1,11 +1,11 @@
 import "./App.css";
-import { useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useDebouncedEffect } from "./debounce";
 
 import Editor from "@monaco-editor/react";
 import { Cell } from "./model/Cell";
 import { Sheet } from "./model/Sheet";
 import { CellElem } from "./CellElem";
-
 const SIZE = 2;
 const defaultSheet = Sheet.ofDimensions(SIZE, SIZE)
   .set(0, 0, '<input type="range"/>')
@@ -15,35 +15,72 @@ const defaultSheet = Sheet.ofDimensions(SIZE, SIZE)
 function App() {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
   const [sheet, setSheet] = useState(defaultSheet);
+  const editorRef = useRef<null | any>(null);
+  // The editor value gets commited periodically to the cell for evaluation
+  const [editorValue, setEditorValue] = useState("");
+
+  useEffect(
+    function selectionChanged() {
+      const editor = editorRef.current;
+      if (editor == null) {
+        return;
+      }
+      editor.focus();
+    },
+    [selectedCell]
+  );
+
+  function commitEditorValue() {
+    if (!selectedCell) return;
+    setSheet(sheet.set(selectedCell.row, selectedCell.col, editorValue || ""));
+  }
+
+  const onEditorChanged = function (value: string | undefined) {
+    if (!selectedCell || value == null) return;
+    setEditorValue(value);
+    // TODO debounce
+    commitEditorValue();
+  };
 
   return (
-    <div className="App">
-      <div className="spreadsheet">
+    <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
+      <div className="spreadsheet" style={{ flexGrow: 1 }}>
         {sheet.map((cell) => (
           <CellElem
             key={cell.row * SIZE + cell.col}
             cell={cell}
-            onClick={setSelectedCell}
+            onClick={(clickedCell) => {
+              if (clickedCell === selectedCell) {
+                return;
+              } else {
+                setSelectedCell(cell);
+                setEditorValue(clickedCell.strValue);
+              }
+            }}
             selected={selectedCell === cell}
           />
         ))}
       </div>
-      <div className="sidebar">
+      <div className="sidebar" style={{ flexGrow: 0, width: 400 }}>
         {selectedCell && (
           <>
             <pre>
               const CELL[{selectedCell.row}][{selectedCell.col}] ={" "}
             </pre>
             <Editor
+              onMount={function handleEditorDidMount(editor, monaco) {
+                editorRef.current = editor;
+                editor.focus();
+                const lastLineIndex = editor.getModel().getLineCount();
+                editor.setPosition({
+                  column: editor.getModel().getLineMaxColumn(lastLineIndex),
+                  lineNumber: lastLineIndex,
+                });
+              }}
               height="90vh"
               language="javascript"
-              onChange={(value) => {
-                if (!selectedCell) return;
-                setSheet(
-                  sheet.set(selectedCell.row, selectedCell.col, value || "")
-                );
-              }}
-              value={selectedCell ? selectedCell.strValue : "// some comment"}
+              onChange={onEditorChanged}
+              value={editorValue}
             />
           </>
         )}
