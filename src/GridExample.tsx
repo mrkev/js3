@@ -1,4 +1,3 @@
-/// <reference types="resize-observer-browser" />
 import { useRef, useState, useCallback, useMemo } from "react";
 import { Grid, GridCellRenderer } from "react-virtualized";
 import { useResizeObserver } from "./useResizeObserver";
@@ -43,17 +42,13 @@ const gridStyle: React.CSSProperties = {
 };
 
 export default function GridSample(props: Props) {
-  const {
-    overscanColumnCount,
-    overscanRowCount,
-    scrollToColumn,
-    scrollToRow,
-  } = {
-    overscanColumnCount: 0,
-    overscanRowCount: 10,
-    scrollToColumn: undefined,
-    scrollToRow: undefined,
-  };
+  const { overscanColumnCount, overscanRowCount, scrollToColumn, scrollToRow } =
+    {
+      overscanColumnCount: 0,
+      overscanRowCount: 10,
+      scrollToColumn: undefined,
+      scrollToRow: undefined,
+    };
 
   const { getColWidth, getRowHeight, width, height } = props;
 
@@ -61,13 +56,15 @@ export default function GridSample(props: Props) {
   const [rootElem, setRootElem] = useState<HTMLDivElement | null>(null);
   const rootContentRect = useResizeObserver(rootElem);
 
-  const columnWidth = useCallback(({ index }) => getColWidth(index), [
-    getColWidth,
-  ]);
+  const columnWidth = useCallback(
+    ({ index }) => getColWidth(index),
+    [getColWidth]
+  );
 
-  const rowHeight = useCallback(({ index }) => getRowHeight(index), [
-    getRowHeight,
-  ]);
+  const rowHeight = useCallback(
+    ({ index }) => getRowHeight(index),
+    [getRowHeight]
+  );
 
   return (
     <div
