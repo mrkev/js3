@@ -1,7 +1,8 @@
 /// <reference types="resize-observer-browser" />
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback, useMemo } from "react";
 import { Grid, GridCellRenderer } from "react-virtualized";
 import { useResizeObserver } from "./useResizeObserver";
+import ReactDOM from "react-dom";
 
 type Props = {
   renderCell: GridCellRenderer;
@@ -9,6 +10,36 @@ type Props = {
   getColWidth: (index: number) => number;
   colCount: number;
   rowCount: number;
+  width: number;
+  height: number;
+};
+
+// CELL(0,0)
+// RANGE(0,0)(0,10)
+
+const noContentRender = () => (
+  <div
+  // className={styles.noCells}
+  // .noCells {
+  //   position: absolute;
+  //   top: 0;
+  //   bottom: 0;
+  //   left: 0;
+  //   right: 0;
+  //   display: flex;
+  //   align-items: center;
+  //   justify-content: center;
+  //   font-size: 1em;
+  //   color: #bdbdbd;
+  // }
+  >
+    No cells
+  </div>
+);
+
+const gridStyle: React.CSSProperties = {
+  userSelect: "none",
+  // pointerEvents: "none",
 };
 
 export default function GridSample(props: Props) {
@@ -24,52 +55,92 @@ export default function GridSample(props: Props) {
     scrollToRow: undefined,
   };
 
-  const contentRef = useRef<null | HTMLDivElement>(null);
+  const { getColWidth, getRowHeight, width, height } = props;
+
+  const gridRef = useRef<null | HTMLDivElement>(null);
   const [rootElem, setRootElem] = useState<HTMLDivElement | null>(null);
   const rootContentRect = useResizeObserver(rootElem);
 
+  const columnWidth = useCallback(({ index }) => getColWidth(index), [
+    getColWidth,
+  ]);
+
+  const rowHeight = useCallback(({ index }) => getRowHeight(index), [
+    getRowHeight,
+  ]);
+
   return (
     <div
-      style={{ flexGrow: 1, height: "100%" }}
-      ref={(elem) => {
-        setRootElem(elem);
-        contentRef.current = elem;
+      style={{
+        width: width,
+        height: height,
+        overflow: "hidden",
+        position: "relative",
       }}
     >
-      {rootContentRect && (
-        <Grid
-          cellRenderer={props.renderCell}
-          columnWidth={({ index }) => props.getColWidth(index)}
-          columnCount={props.colCount}
-          height={rootContentRect.height}
-          noContentRenderer={() => (
-            <div
-            // className={styles.noCells}
-            // .noCells {
-            //   position: absolute;
-            //   top: 0;
-            //   bottom: 0;
-            //   left: 0;
-            //   right: 0;
-            //   display: flex;
-            //   align-items: center;
-            //   justify-content: center;
-            //   font-size: 1em;
-            //   color: #bdbdbd;
-            // }
-            >
-              No cells
-            </div>
-          )}
-          overscanColumnCount={overscanColumnCount}
-          overscanRowCount={overscanRowCount}
-          rowHeight={({ index }) => props.getRowHeight(index)}
-          rowCount={props.rowCount}
-          scrollToColumn={scrollToColumn}
-          scrollToRow={scrollToRow}
-          width={rootContentRect.width}
-        />
-      )}
+      <div
+        style={{ position: "absolute", left: 10, top: 10, background: "red" }}
+      >
+        HELLO
+      </div>
+      <Grid
+        role="none"
+        style={gridStyle}
+        ref={(instance) => {
+          const elem = ReactDOM.findDOMNode(instance);
+          if (!(elem instanceof HTMLDivElement)) {
+            return;
+          }
+          gridRef.current = elem;
+        }}
+        onScroll={function () {
+          if (gridRef.current) {
+            console.log(gridRef.current.scrollLeft);
+          }
+        }}
+        // tabIndex={-1}
+        cellRenderer={props.renderCell}
+        columnWidth={columnWidth}
+        columnCount={props.colCount}
+        height={height}
+        noContentRenderer={noContentRender}
+        overscanColumnCount={overscanColumnCount}
+        overscanRowCount={overscanRowCount}
+        rowHeight={rowHeight}
+        rowCount={props.rowCount}
+        scrollToColumn={scrollToColumn}
+        scrollToRow={scrollToRow}
+        width={width}
+      />
     </div>
   );
+  // return (
+  //   <div
+  //     style={{ flexGrow: 1, flexShrink: 1, height: "100%" }}
+  //     ref={(elem) => {
+  //       setRootElem(elem);
+  //       contentRef.current = elem;
+  //     }}
+  //   >
+  //     {rootContentRect && (
+  //       <Grid
+  //         role="none"
+  //         style={gridStyle}
+  //         // tabIndex={-1}
+  //         cellRenderer={props.renderCell}
+  //         columnWidth={columnWidth}
+  //         columnCount={props.colCount}
+  //         height={rootContentRect.height}
+  //         noContentRenderer={noContentRender}
+  //         overscanColumnCount={overscanColumnCount}
+  //         overscanRowCount={overscanRowCount}
+  //         rowHeight={rowHeight}
+  //         rowCount={props.rowCount}
+  //         scrollToColumn={scrollToColumn}
+  //         scrollToRow={scrollToRow}
+  //         width={rootContentRect.width}
+  //       />
+  //     )}
+  //   </div>
+  // );
 }

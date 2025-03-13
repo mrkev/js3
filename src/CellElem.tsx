@@ -17,12 +17,17 @@ export function CellElem({ cell, onClick, selected, style }: Props) {
 
   return (
     <div
+      role="gridcell"
       style={style}
       ref={(elem) => {
         cell.cellDOMElement = elem;
       }}
       className={cx("cell", selected && "selected")}
       onClick={() => onClick(cell)}
+      // onMouseDown={(e) => {
+      //   onClick(cell);
+      //   e.stopPropagation();
+      // }}
     ></div>
   );
 }

@@ -8,15 +8,18 @@ export function useResizeObserver(
     if (!element) {
       return;
     }
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        if (entry.target !== element) {
-          continue;
+    const resizeObserver = new ResizeObserver(
+      (entries: Array<ResizeObserverEntry>) => {
+        for (let entry of entries) {
+          if (entry.target !== element) {
+            continue;
+          }
+          setContentRect(entry.contentRect);
+          console.log("resize");
+          return;
         }
-        setContentRect(entry.contentRect);
-        return;
       }
-    });
+    );
     resizeObserver.observe(element);
     return () => resizeObserver.unobserve(element);
   }, [element]);

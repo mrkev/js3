@@ -19,6 +19,11 @@ export class DOMRep {
 
     // Create the element
     this.domRep = document.createElement(this.type);
+    // todo: remove event listener
+    this.domRep.addEventListener("click", function (e) {
+      // e.preventDefault();
+      e.stopPropagation();
+    });
     for (let key in this.attrs) {
       this.domRep.setAttribute(key, this.attrs[key]);
     }
@@ -96,7 +101,7 @@ function evaluate(
     }
     return result;
   } catch (e) {
-    return new Error(e.message);
+    return new Error((e as any).message);
   }
 }
 
