@@ -1,7 +1,8 @@
 import React from "react";
 import { DOMRep } from "./DOMRep";
-import { cellChanged, Sheet } from "./Sheet";
+import { Sheet } from "./Sheet";
 import { CellEvalResult, evalCellJS } from "./evaluateCellJS";
+import { exhaustive } from "../exhaustive";
 
 export type Primitive = string | number | boolean;
 
@@ -12,7 +13,6 @@ export class Cell {
     this.strValue = value;
     // console.log("evaled", Cell.evaluate(this));
   }
-
   // set strValue, evaluate
 
   // The data this cell renders
@@ -26,7 +26,8 @@ export class Cell {
 
   setPrimitiveValue(primitive: Primitive) {
     this._primitiveValue = primitive;
-    cellChanged(this);
+    this.sheet.evaluator.queueEvaluation(this, "depsonly");
+    this.sheet.evaluator.evalAll();
   }
 
   // Cells this cell sends data to. "children", in a dependency tree
@@ -61,33 +62,6 @@ export class Cell {
     dependency.feeds.delete(this);
   }
 
-  /** Returns the HTML to be dangerously set in the cell DOM */
-  renderToString(): string {
-    const result = this.contentValue;
-
-    if (typeof result === "string") {
-      return result;
-    }
-
-    if (typeof result === "number") {
-      return String(result);
-    }
-
-    if (typeof result === "boolean") {
-      return String(result);
-    }
-
-    if (result instanceof Error) {
-      return result.message;
-    }
-
-    if (result instanceof DOMRep) {
-      return this.strValue;
-    }
-
-    return "X";
-  }
-
   render() {
     if (this.cellRef.current == null) {
       console.log("No element to render to");
@@ -98,26 +72,21 @@ export class Cell {
       this.cellRef.current.removeChild(this.cellRef.current.firstChild);
     }
 
-    if (this.contentValue instanceof DOMRep) {
-      const node = this.contentValue.getDOM();
-      this.cellRef.current.appendChild(node);
-    } else {
-      const node = document.createTextNode(this.renderToString());
-      this.cellRef.current.appendChild(node);
-    }
+    const node = nodeOfContent(this.contentValue);
+    this.cellRef.current.appendChild(node);
   }
 }
 
-export function evaluateCell(cell: Cell) {
-  // We don't know who we depend on now
+export function evaluateCell(cell: Cell, sheet: Sheet) {
+  // We don't know who we depend on anymore, since we changed our cell's content
   cell.dependsOn.forEach((dependency) => {
     cell.removeDependency(dependency);
   });
 
   // Eval the value, "undefined" renders the empty string
-  const evaluated = evalCellJS(cell.strValue, cell.sheet, cell);
-  cell.contentValue = typeof evaluated === "undefined" ? (cell.contentValue = "") : (cell.contentValue = evaluated);
+  const evaluated = evalCellJS(cell.strValue, sheet, cell);
 
+  cell.contentValue = typeof evaluated === "undefined" ? (cell.contentValue = "") : (cell.contentValue = evaluated);
   if (cell.contentValue instanceof DOMRep) {
     cell.contentValue.onChange = cell.cellHTMLInputValueChanged;
     cell.setPrimitiveValue(cell.contentValue.getPrimitiveValue());
@@ -128,4 +97,31 @@ export function evaluateCell(cell: Cell) {
   }
 
   return evaluated;
+}
+
+///////////////////////////// UPDATES ////////////////////////////////
+
+/** Returns the HTML to be directly set in the cell DOM */
+function nodeOfContent(content: CellEvalResult): HTMLElement | Text {
+  if (content instanceof DOMRep) {
+    return content.getDOM();
+  }
+
+  if (typeof content === "string") {
+    return document.createTextNode(content);
+  }
+
+  if (typeof content === "number") {
+    return document.createTextNode(String(content));
+  }
+
+  if (typeof content === "boolean") {
+    return document.createTextNode(String(content));
+  }
+
+  if (content instanceof Error) {
+    return document.createTextNode(content.message);
+  }
+
+  exhaustive(content);
 }

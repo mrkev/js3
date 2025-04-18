@@ -16,7 +16,7 @@ export const CellElem = React.memo(function CellElem({
   selected: boolean;
 }) {
   useEffect(() => {
-    evaluateCell(cell);
+    evaluateCell(cell, sheet);
     cell.render();
   }, [cell, cell.strValue]);
 

@@ -9,17 +9,16 @@ import { Cell } from "./model/Cell";
 import { Sheet } from "./model/Sheet";
 import useClientSize from "./useClientSize";
 
-const SIZE = 1000;
-const sheet = Sheet.ofDimensions(SIZE, SIZE)
-  .set(0, 0, '<input type="range"/>')
-  .set(0, 1, '"cool"')
-  .set(1, 0, "CELL[0][0]()");
+const SIZE = 100;
 
 function App() {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
   const editorRef = useRef<null | any>(null);
   // The editor value gets commited periodically to the cell for evaluation
   const [editorValue, setEditorValue] = useState("");
+  const [sheet] = useState(() =>
+    Sheet.ofDimensions(SIZE, SIZE).set(0, 0, '<input type="range"/>').set(0, 1, '"cool"').set(1, 0, "CELL[0][0]()"),
+  );
 
   useContainer(sheet);
 

@@ -1,6 +1,7 @@
 import { InitFunctions, JSONOfAuto, map, number, ReplaceFunctions, Structured } from "structured-state";
 import { LinkedMap } from "structured-state/dist/state/LinkedMap";
 import { Cell, evaluateCell } from "./Cell";
+import { Evaluator } from "./Evaluator";
 
 type SerializedSheet = {
   rows: number;
@@ -17,6 +18,7 @@ type CellID = `r:${number}-c:${number}`;
  */
 export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   readonly hashvalue = number(0);
+  readonly evaluator = new Evaluator();
 
   replace(autoJson: JSONOfAuto<SerializedSheet>, replace: ReplaceFunctions): void {
     throw new Error("Method not implemented.");
@@ -182,9 +184,10 @@ export function cellChanged(cell: Cell) {
   cell.feeds.forEach(function (fed) {
     toEval.add(fed);
   });
+
   // Separate set because "evaluate" modifies cell.feeds
   toEval.forEach((cell) => {
-    evaluateCell(cell);
+    evaluateCell(cell, cell.sheet);
     cell.render();
   });
   // TODO: call evaluate on cells that depend on this one
