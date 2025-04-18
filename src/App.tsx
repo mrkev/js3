@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GridCellProps } from "react-virtualized";
 import { useContainer } from "structured-state";
 import "./App.css";
@@ -21,7 +21,6 @@ export function App() {
   );
 
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
-  // The editor value gets commited periodically to the cell for evaluation
 
   useContainer(sheet);
 
@@ -31,19 +30,9 @@ export function App() {
     sheet.flushEvalQueue();
   }, [sheet]);
 
-  const onEditorChanged = function (value: string | undefined) {
-    if (!selectedCell || value == null) return;
-    setEditorValue(value);
-    selectedCell.setStrValue(value);
-    evaluateCell(selectedCell, sheet);
-    selectedCell.render();
-  };
-
-  const editorRef = useRef<null | any>(null);
   const [editorValue, setEditorValue] = useState("");
   const onCellClick = useCallback((clickedCell: Cell) => {
     setSelectedCell(clickedCell);
-    editorRef.current?.focus();
     setEditorValue(clickedCell.strValue);
   }, []);
 
@@ -109,21 +98,13 @@ export function App() {
       {selectedCell && (
         <Sidebar
           selectedCell={selectedCell}
-          onEditorChange={onEditorChanged}
-          editorValue={editorValue}
-          onEditorMount={function handleEditorDidMount(editor, monaco) {
-            editorRef.current = editor;
-            editor.focus();
-            const model = editor.getModel();
-            if (!model) {
-              return;
-            }
-            const lastLineIndex = model.getLineCount();
-            editor.setPosition({
-              column: model.getLineMaxColumn(lastLineIndex),
-              lineNumber: lastLineIndex,
-            });
+          onEditorChange={(value) => {
+            if (value == null) return;
+            selectedCell.setStrValue(value);
+            evaluateCell(selectedCell, sheet);
+            selectedCell.render();
           }}
+          editorValue={editorValue}
         />
       )}
     </>

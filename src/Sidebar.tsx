@@ -1,18 +1,22 @@
-import Editor, { OnChange, OnMount } from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
+import { useEffect, useRef } from "react";
 import "./App.css";
 import { Cell } from "./model/Cell";
 
 export function Sidebar({
   selectedCell,
-  onEditorMount,
   onEditorChange,
   editorValue,
 }: {
   selectedCell: Cell;
-  onEditorMount: OnMount;
-  onEditorChange: OnChange;
+  onEditorChange: (value: string | undefined) => void;
   editorValue: string | undefined;
 }) {
+  const editorRef = useRef<null | any>(null);
+  useEffect(() => {
+    editorRef.current?.focus();
+  }, [selectedCell]);
+
   return (
     <div
       className="sidebar"
@@ -33,7 +37,19 @@ export function Sidebar({
       </pre>
       <div style={{ flexGrow: 1, flexShrink: 1, overflow: "hidden" }}>
         <Editor
-          onMount={onEditorMount}
+          onMount={function handleEditorDidMount(editor, monaco) {
+            editorRef.current = editor;
+            editor.focus();
+            const model = editor.getModel();
+            if (!model) {
+              return;
+            }
+            const lastLineIndex = model.getLineCount();
+            editor.setPosition({
+              column: model.getLineMaxColumn(lastLineIndex),
+              lineNumber: lastLineIndex,
+            });
+          }}
           height="100%"
           language="javascript"
           onChange={onEditorChange}
