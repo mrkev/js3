@@ -1,7 +1,8 @@
 import { InitFunctions, JSONOfAuto, map, number, ReplaceFunctions, Structured } from "structured-state";
 import { LinkedMap } from "structured-state/dist/state/LinkedMap";
-import { Cell, evaluateCell } from "./Cell";
+import { Cell } from "./Cell";
 import { Evaluator } from "./Evaluator";
+import { LinkedPrimitive } from "structured-state/dist/state/LinkedPrimitive";
 
 type SerializedSheet = {
   rows: number;
@@ -18,7 +19,7 @@ type CellID = `r:${number}-c:${number}`;
  */
 export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   readonly hashvalue = number(0);
-  readonly evaluator = new Evaluator();
+  readonly evaluator: Evaluator;
 
   replace(autoJson: JSONOfAuto<SerializedSheet>, replace: ReplaceFunctions): void {
     throw new Error("Method not implemented.");
@@ -43,6 +44,7 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     readonly cellsWithValue: LinkedMap<CellID, Cell>,
   ) {
     super();
+    this.evaluator = new Evaluator(this);
     (window as any).sheet = this;
   }
 
@@ -62,13 +64,20 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     return result;
   }
 
-  set(r: number, c: number, value: string): Sheet {
+  set(r: number, c: number, value: string, queue: boolean): Sheet {
     if (r >= this.rows || c >= this.cols) {
       console.log("set on", this.rows, this.cols);
       throw new Error(`Can't set value for non-existing cell at ${r}:${c}`);
     }
-    this._grid[r][c].strValue = value;
+    const cell = this._grid[r][c];
+    cell.strValue = value;
+    queue && this.evaluator.queueEvaluation(cell, "cellanddeps");
     this.hashvalue.set(this.hashvalue.get() + 1);
+    return this;
+  }
+
+  flushEvalQueue() {
+    this.evaluator.evalAll();
     return this;
   }
 
@@ -173,22 +182,4 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
       },
     });
   };
-}
-
-///////////////////////////// UPDATES ////////////////////////////////
-
-export function cellChanged(cell: Cell) {
-  // todo: investigate, does this get called on every re-render?
-  // console.log("changed", cell.row, cell.col, cell.primitiveValue);
-  const toEval = new Set<Cell>();
-  cell.feeds.forEach(function (fed) {
-    toEval.add(fed);
-  });
-
-  // Separate set because "evaluate" modifies cell.feeds
-  toEval.forEach((cell) => {
-    evaluateCell(cell, cell.sheet);
-    cell.render();
-  });
-  // TODO: call evaluate on cells that depend on this one
 }

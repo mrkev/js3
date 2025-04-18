@@ -6,6 +6,7 @@ import "./App.css";
 import { CellElem } from "./CellElem";
 import GridExample from "./GridExample";
 import { Cell } from "./model/Cell";
+import { evaluateCell } from "./model/Evaluator";
 import { Sheet } from "./model/Sheet";
 import useClientSize from "./useClientSize";
 
@@ -17,15 +18,26 @@ function App() {
   // The editor value gets commited periodically to the cell for evaluation
   const [editorValue, setEditorValue] = useState("");
   const [sheet] = useState(() =>
-    Sheet.ofDimensions(SIZE, SIZE).set(0, 0, '<input type="range"/>').set(0, 1, '"cool"').set(1, 0, "CELL[0][0]()"),
+    Sheet.ofDimensions(SIZE, SIZE)
+      .set(0, 0, '<input type="range"/>', true)
+      .set(0, 1, '"cool"', true)
+      .set(1, 0, "CELL[0][0]()", true),
   );
 
   useContainer(sheet);
+
+  useEffect(() => {
+    // for any initial .sets, note this also renders right now but might
+    // be good to separate evaluation and rendering perhaps
+    sheet.flushEvalQueue();
+  }, [sheet]);
 
   const onEditorChanged = function (value: string | undefined) {
     if (!selectedCell || value == null) return;
     setEditorValue(value);
     selectedCell.setStrValue(value);
+    evaluateCell(selectedCell, sheet);
+    selectedCell.render();
   };
 
   const onCellClick = useCallback((clickedCell: Cell) => {
@@ -44,7 +56,6 @@ function App() {
       return (
         <CellElem
           style={style}
-          sheet={sheet}
           key={cell.row * SIZE + cell.col}
           cell={cell}
           onClick={onCellClick}

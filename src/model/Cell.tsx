@@ -26,8 +26,6 @@ export class Cell {
 
   setPrimitiveValue(primitive: Primitive) {
     this._primitiveValue = primitive;
-    this.sheet.evaluator.queueEvaluation(this, "depsonly");
-    this.sheet.evaluator.evalAll();
   }
 
   // Cells this cell sends data to. "children", in a dependency tree
@@ -49,6 +47,8 @@ export class Cell {
       return;
     }
     this.setPrimitiveValue(this.contentValue.getPrimitiveValue());
+    this.sheet.evaluator.queueEvaluation(this, "depsonly");
+    this.sheet.evaluator.evalAll();
   };
 
   // If I write CELL[0][0](), I depend on CELL[0][0]()
@@ -63,6 +63,7 @@ export class Cell {
   }
 
   render() {
+    console.log("RENDER");
     if (this.cellRef.current == null) {
       console.log("No element to render to");
       return;
@@ -77,29 +78,15 @@ export class Cell {
   }
 }
 
-export function evaluateCell(cell: Cell, sheet: Sheet) {
-  // We don't know who we depend on anymore, since we changed our cell's content
-  cell.dependsOn.forEach((dependency) => {
-    cell.removeDependency(dependency);
-  });
-
-  // Eval the value, "undefined" renders the empty string
-  const evaluated = evalCellJS(cell.strValue, sheet, cell);
-
-  cell.contentValue = evaluated; //typeof evaluated === "undefined" ? (cell.contentValue = "") : (cell.contentValue = evaluated);
-  if (cell.contentValue instanceof DOMRep) {
-    cell.contentValue.onChange = cell.cellHTMLInputValueChanged;
-    cell.setPrimitiveValue(cell.contentValue.getPrimitiveValue());
-  } else if (cell.contentValue instanceof Error) {
-    cell.setPrimitiveValue(cell.contentValue.message);
+export function primitiveOf(content: CellEvalResult): Primitive {
+  if (content instanceof DOMRep) {
+    return content.getPrimitiveValue();
+  } else if (content instanceof Error) {
+    return content.message;
   } else {
-    cell.setPrimitiveValue(cell.contentValue);
+    return content;
   }
-
-  return evaluated;
 }
-
-///////////////////////////// UPDATES ////////////////////////////////
 
 /** Returns the HTML to be directly set in the cell DOM */
 function nodeOfContent(content: CellEvalResult): HTMLElement | Text {
