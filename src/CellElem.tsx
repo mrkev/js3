@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Cell } from "./model/Cell";
 import { cx } from "./util";
 
@@ -16,7 +16,7 @@ export const CellElem = React.memo(function CellElem({
     <div
       role="gridcell"
       style={style}
-      ref={cell.cellRef}
+      ref={cell.setRef}
       className={cx("cell", selected && "selected")}
       onClick={() => onClick(cell)}
       // onMouseDown={(e) => {

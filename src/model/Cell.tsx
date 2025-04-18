@@ -2,7 +2,7 @@ import React from "react";
 import { exhaustive } from "../exhaustive";
 import { DOMRep } from "./DOMRep";
 import { Sheet } from "./Sheet";
-import { CellEvalResult, evalCellJS } from "./evaluateCellJS";
+import { CellEvalResult } from "./evaluateCellJS";
 
 export type Primitive = string | number | boolean | null;
 
@@ -33,6 +33,12 @@ export class Cell {
   dependsOn: Set<Cell> = new Set();
 
   readonly cellRef = React.createRef<HTMLDivElement | null>();
+  setRef = (elem: HTMLDivElement | null) => {
+    this.cellRef.current = elem;
+    if (elem) {
+      this.render();
+    }
+  };
 
   constructor(
     readonly sheet: Sheet,
