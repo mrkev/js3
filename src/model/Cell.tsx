@@ -1,3 +1,4 @@
+import React from "react";
 import { Sheet } from "./Sheet";
 
 type Primitive = string | number | boolean;
@@ -66,7 +67,7 @@ export class DOMRep {
 function evaluate(
   src: string,
   sheet: Sheet,
-  calledFromCell: Cell,
+  calledFromCell: Cell
 ): EvaledValue | undefined {
   try {
     // Transform the expression
@@ -76,14 +77,14 @@ function evaluate(
       wrappedSrc,
       {
         plugins: ["transform-react-jsx"],
-      },
+      }
     );
 
     // eslint-disable-next-line no-new-func
     const funcExpr = new Function("DOMRep", "CELL", "return " + transformedSrc);
     const result = funcExpr(
       DOMRep,
-      sheet.getCELLAccessorProxy(calledFromCell),
+      sheet.getCELLAccessorProxy(calledFromCell)
     )();
     if (
       !(
@@ -96,7 +97,7 @@ function evaluate(
     ) {
       console.log("result", result);
       throw new Error(
-        "Only booleans, numbres, strings and inputs are supported",
+        "Only booleans, numbres, strings and inputs are supported"
       );
     }
     return result;
@@ -130,7 +131,7 @@ export class Cell {
   feeds: Set<Cell> = new Set();
   dependsOn: Set<Cell> = new Set();
 
-  cellDOMElement: HTMLDivElement | null = null;
+  cellRef = React.createRef<HTMLDivElement | null>();
 
   constructor(sheet: Sheet, row: number, col: number) {
     this.sheet = sheet;
@@ -209,21 +210,21 @@ export class Cell {
   }
 
   render() {
-    if (this.cellDOMElement == null) {
+    if (this.cellRef.current == null) {
       console.log("No element to render to");
       return;
     }
 
-    if (this.cellDOMElement.firstChild) {
-      this.cellDOMElement.removeChild(this.cellDOMElement.firstChild);
+    if (this.cellRef.current.firstChild) {
+      this.cellRef.current.removeChild(this.cellRef.current.firstChild);
     }
 
     if (this.renderValue instanceof DOMRep) {
       const node = this.renderValue.getDOM();
-      this.cellDOMElement.appendChild(node);
+      this.cellRef.current.appendChild(node);
     } else {
       const node = document.createTextNode(this.renderToString());
-      this.cellDOMElement.appendChild(node);
+      this.cellRef.current.appendChild(node);
     }
   }
 }

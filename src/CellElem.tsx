@@ -1,15 +1,18 @@
-import { cx } from "./util";
 import { useEffect } from "react";
 import { Cell } from "./model/Cell";
+import { cx } from "./util";
 
-type Props = {
+export function CellElem({
+  cell,
+  onClick,
+  selected,
+  style,
+}: {
   cell: Cell;
   onClick: (cell: Cell) => void;
   selected: boolean;
   style: React.CSSProperties;
-};
-
-export function CellElem({ cell, onClick, selected, style }: Props) {
+}) {
   useEffect(() => {
     cell.evaluate();
     cell.render();
@@ -19,9 +22,7 @@ export function CellElem({ cell, onClick, selected, style }: Props) {
     <div
       role="gridcell"
       style={style}
-      ref={(elem) => {
-        cell.cellDOMElement = elem;
-      }}
+      ref={cell.cellRef}
       className={cx("cell", selected && "selected")}
       onClick={() => onClick(cell)}
       // onMouseDown={(e) => {
