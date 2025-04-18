@@ -66,7 +66,7 @@ export class DOMRep {
 function evaluate(
   src: string,
   sheet: Sheet,
-  calledFromCell: Cell
+  calledFromCell: Cell,
 ): EvaledValue | undefined {
   try {
     // Transform the expression
@@ -76,14 +76,14 @@ function evaluate(
       wrappedSrc,
       {
         plugins: ["transform-react-jsx"],
-      }
+      },
     );
 
     // eslint-disable-next-line no-new-func
     const funcExpr = new Function("DOMRep", "CELL", "return " + transformedSrc);
     const result = funcExpr(
       DOMRep,
-      sheet.getCELLAccessorProxy(calledFromCell)
+      sheet.getCELLAccessorProxy(calledFromCell),
     )();
     if (
       !(
@@ -96,7 +96,7 @@ function evaluate(
     ) {
       console.log("result", result);
       throw new Error(
-        "Only booleans, numbres, strings and inputs are supported"
+        "Only booleans, numbres, strings and inputs are supported",
       );
     }
     return result;

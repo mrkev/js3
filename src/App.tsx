@@ -31,7 +31,7 @@ function App() {
       }
       editor.focus();
     },
-    [selectedCell]
+    [selectedCell],
   );
 
   function commitEditorValue() {
@@ -55,7 +55,7 @@ function App() {
       setEditorValue(clickedCell.strValue);
       // }
     },
-    []
+    [],
     // [selectedCell]
   );
 
@@ -76,7 +76,7 @@ function App() {
         />
       );
     },
-    [onCellClick, selectedCell, sheet]
+    [onCellClick, selectedCell, sheet],
   );
 
   const getRowHeight = useCallback(
@@ -88,7 +88,7 @@ function App() {
         return explicitHeight;
       }
     },
-    [sheet]
+    [sheet],
   );
   const getColWidth = useCallback(
     function getColWidth(index: number) {
@@ -99,7 +99,7 @@ function App() {
         return explicitWidth;
       }
     },
-    [sheet]
+    [sheet],
   );
 
   const [windowWidth, windowHeight] = useClientSize();

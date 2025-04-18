@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export function useResizeObserver(
-  element: Element | null
+  element: Element | null,
 ): DOMRectReadOnly | null {
   const [contentRect, setContentRect] = useState<DOMRectReadOnly | null>(null);
   useEffect(() => {
@@ -18,7 +18,7 @@ export function useResizeObserver(
           console.log("resize");
           return;
         }
-      }
+      },
     );
     resizeObserver.observe(element);
     return () => resizeObserver.unobserve(element);

@@ -58,12 +58,12 @@ export default function GridSample(props: Props) {
 
   const columnWidth = useCallback(
     ({ index }) => getColWidth(index),
-    [getColWidth]
+    [getColWidth],
   );
 
   const rowHeight = useCallback(
     ({ index }) => getRowHeight(index),
-    [getRowHeight]
+    [getRowHeight],
   );
 
   return (

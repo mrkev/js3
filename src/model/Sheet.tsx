@@ -18,7 +18,7 @@ export class Sheet {
   static ofDimensions(rows: number, cols: number) {
     const sheet = new Sheet();
     sheet._grid = [...new Array(rows)].map((_, r) =>
-      [...new Array(cols)].map((_, c) => new Cell(sheet, r, c))
+      [...new Array(cols)].map((_, c) => new Cell(sheet, r, c)),
     );
     sheet._dims = { rows, cols };
     return sheet;
@@ -142,7 +142,7 @@ export class Sheet {
           }
           return self.getRowProxy(parseInt(prop), calledFromCell);
         },
-      }
+      },
     );
   }
 
@@ -158,7 +158,7 @@ export class Sheet {
           }
           return self.getCellProxy(row, parseInt(prop), calledFromCell);
         },
-      }
+      },
     );
   };
 
