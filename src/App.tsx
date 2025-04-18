@@ -3,12 +3,13 @@ import { GridCellProps } from "react-virtualized";
 import { useContainer } from "structured-state";
 import "./App.css";
 import { CellElem } from "./CellElem";
-import GridExample from "./GridExample";
+
 import { Cell } from "./model/Cell";
 import { evaluateCell } from "./model/Evaluator";
 import { Sheet } from "./model/Sheet";
 import { Sidebar } from "./Sidebar";
 import useClientSize from "./useClientSize";
+import { SpreadsheetGrid } from "./SpreadsheetGrid";
 
 const SIZE = 100;
 
@@ -56,29 +57,6 @@ export function App() {
     [onCellClick, selectedCell, sheet],
   );
 
-  const getRowHeight = useCallback(
-    function getRowHeight(index: any) {
-      const explicitHeight = sheet.getExplicitRowHeight(index);
-      if (explicitHeight === null) {
-        return 40;
-      } else {
-        return explicitHeight;
-      }
-    },
-    [sheet],
-  );
-  const getColWidth = useCallback(
-    function getColWidth(index: number) {
-      const explicitWidth = sheet.getExplicitColWidth(index);
-      if (explicitWidth === null) {
-        return 150;
-      } else {
-        return explicitWidth;
-      }
-    },
-    [sheet],
-  );
-
   const [windowWidth, windowHeight] = useClientSize();
 
   // TODO:
@@ -86,15 +64,7 @@ export function App() {
   // - col/row labels
   return (
     <>
-      <GridExample
-        renderCell={renderCell}
-        colCount={sheet.cols}
-        rowCount={sheet.rows}
-        getRowHeight={getRowHeight}
-        getColWidth={getColWidth}
-        width={windowWidth}
-        height={windowHeight}
-      />
+      <SpreadsheetGrid sheet={sheet} renderCell={renderCell} width={windowWidth} height={windowHeight} />
       {selectedCell && (
         <Sidebar
           selectedCell={selectedCell}
