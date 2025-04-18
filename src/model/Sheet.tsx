@@ -1,25 +1,40 @@
+import { InitFunctions, JSONOfAuto, number, ReplaceFunctions, Structured } from "structured-state";
 import { Cell } from "./Cell";
+
+type SerializedSheet = {};
 
 /**
  * The Spreadsheet. Note:
  * - .clone() exists to trigger react updates. Cells mutate though, they aren't
  *   re-created.
  */
-export class Sheet {
+export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
+  readonly hashvalue = number(0);
+
+  replace(autoJson: JSONOfAuto<SerializedSheet>, replace: ReplaceFunctions): void {
+    throw new Error("Method not implemented.");
+  }
+  autoSimplify(): SerializedSheet {
+    return {};
+  }
+
+  static construct(auto: JSONOfAuto<SerializedSheet>, init: InitFunctions): Sheet {
+    return Structured.create(Sheet);
+  }
+
   _grid: Array<Array<Cell>> = [];
   _rowSizes: { [row: number]: number } = {};
   _colSizes: { [col: number]: number } = {};
   _dims: { rows: number; cols: number } = { rows: 0, cols: 0 };
 
   constructor() {
+    super();
     (window as any).sheet = this;
   }
 
   static ofDimensions(rows: number, cols: number) {
-    const sheet = new Sheet();
-    sheet._grid = [...new Array(rows)].map((_, r) =>
-      [...new Array(cols)].map((_, c) => new Cell(sheet, r, c)),
-    );
+    const sheet = Structured.create(Sheet);
+    sheet._grid = [...new Array(rows)].map((_, r) => [...new Array(cols)].map((_, c) => new Cell(sheet, r, c)));
     sheet._dims = { rows, cols };
     return sheet;
   }
@@ -40,7 +55,8 @@ export class Sheet {
       throw new Error(`Can't set value for non-existing cell at ${r}:${c}`);
     }
     this._grid[r][c].strValue = value;
-    return this.clone();
+    this.hashvalue.set(this.hashvalue.get() + 1);
+    return this;
   }
 
   get(r: number, c: number): Cell | null {
@@ -49,15 +65,6 @@ export class Sheet {
     }
     const cell = this._grid[r][c];
     return cell ? cell : null;
-  }
-
-  clone() {
-    const sheet = new Sheet();
-    sheet._grid = this._grid;
-    sheet._rowSizes = this._rowSizes;
-    sheet._colSizes = this._colSizes;
-    sheet._dims = this._dims;
-    return sheet;
   }
 
   ///////////////////////// DISPLAY + SIZES //////////////////////////////

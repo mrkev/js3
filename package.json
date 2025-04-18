@@ -13,11 +13,16 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-virtualized": "^9.22.6",
+    "structured-state": "file:../substate/packages/structured-state",
     "typescript": "^5.8.3"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "trailingComma": "all"
   },
   "browserslist": {
     "production": [

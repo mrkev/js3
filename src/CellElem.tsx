@@ -7,11 +7,10 @@ export function CellElem({
   onClick,
   selected,
   style,
-}: {
+}: Omit<React.HTMLAttributes<HTMLDivElement>, "onClick"> & {
   cell: Cell;
   onClick: (cell: Cell) => void;
   selected: boolean;
-  style: React.CSSProperties;
 }) {
   useEffect(() => {
     cell.evaluate();

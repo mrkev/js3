@@ -1,27 +1,28 @@
-import "./App.css";
-import { useEffect, useState, useRef, useCallback } from "react";
-import { useDebouncedEffect } from "./debounce";
-import GridExample from "./GridExample";
-import { Grid, GridCellProps } from "react-virtualized";
-
 import Editor from "@monaco-editor/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { GridCellProps } from "react-virtualized";
+import { useContainer } from "structured-state";
+import "./App.css";
+import { CellElem } from "./CellElem";
+import GridExample from "./GridExample";
 import { Cell } from "./model/Cell";
 import { Sheet } from "./model/Sheet";
-import { CellElem } from "./CellElem";
 import useClientSize from "./useClientSize";
 
 const SIZE = 1000;
-const defaultSheet = Sheet.ofDimensions(SIZE, SIZE)
+const sheet = Sheet.ofDimensions(SIZE, SIZE)
   .set(0, 0, '<input type="range"/>')
   .set(0, 1, '"cool"')
   .set(1, 0, "CELL[0][0]()");
 
 function App() {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
-  const [sheet, setSheet] = useState(defaultSheet);
+  // const [sheet, setSheet] = useState(defaultSheet);
   const editorRef = useRef<null | any>(null);
   // The editor value gets commited periodically to the cell for evaluation
   const [editorValue, setEditorValue] = useState("");
+
+  useContainer(sheet);
 
   useEffect(
     function selectionChanged() {
@@ -31,12 +32,13 @@ function App() {
       }
       editor.focus();
     },
-    [selectedCell]
+    [selectedCell],
   );
 
   function commitEditorValue() {
     if (!selectedCell) return;
-    setSheet(sheet.set(selectedCell.row, selectedCell.col, editorValue || ""));
+    // setSheet();
+    sheet.set(selectedCell.row, selectedCell.col, editorValue || "");
   }
 
   const onEditorChanged = function (value: string | undefined) {
@@ -46,18 +48,10 @@ function App() {
     commitEditorValue();
   };
 
-  const onCellClick = useCallback(
-    (clickedCell: any) => {
-      // if (clickedCell === selectedCell) {
-      //   return;
-      // } else {
-      setSelectedCell(clickedCell);
-      setEditorValue(clickedCell.strValue);
-      // }
-    },
-    []
-    // [selectedCell]
-  );
+  const onCellClick = useCallback((clickedCell: Cell) => {
+    setSelectedCell(clickedCell);
+    setEditorValue(clickedCell.strValue);
+  }, []);
 
   const renderCell = useCallback(
     function renderCell({ columnIndex, key, rowIndex, style }: GridCellProps) {
@@ -76,7 +70,7 @@ function App() {
         />
       );
     },
-    [onCellClick, selectedCell, sheet]
+    [onCellClick, selectedCell, sheet],
   );
 
   const getRowHeight = useCallback(
@@ -88,7 +82,7 @@ function App() {
         return explicitHeight;
       }
     },
-    [sheet]
+    [sheet],
   );
   const getColWidth = useCallback(
     function getColWidth(index: number) {
@@ -99,7 +93,7 @@ function App() {
         return explicitWidth;
       }
     },
-    [sheet]
+    [sheet],
   );
 
   const [windowWidth, windowHeight] = useClientSize();
