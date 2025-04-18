@@ -63,7 +63,7 @@ export class Cell {
   }
 
   render() {
-    console.log("RENDER");
+    // console.log("RENDER");
     if (this.cellRef.current == null) {
       console.log("No element to render to");
       return;

@@ -1,4 +1,3 @@
-import Editor from "@monaco-editor/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GridCellProps } from "react-virtualized";
 import { useContainer } from "structured-state";
@@ -8,21 +7,21 @@ import GridExample from "./GridExample";
 import { Cell } from "./model/Cell";
 import { evaluateCell } from "./model/Evaluator";
 import { Sheet } from "./model/Sheet";
+import { Sidebar } from "./Sidebar";
 import useClientSize from "./useClientSize";
 
 const SIZE = 100;
 
-function App() {
-  const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
-  const editorRef = useRef<null | any>(null);
-  // The editor value gets commited periodically to the cell for evaluation
-  const [editorValue, setEditorValue] = useState("");
+export function App() {
   const [sheet] = useState(() =>
     Sheet.ofDimensions(SIZE, SIZE)
       .set(0, 0, '<input type="range"/>', true)
       .set(0, 1, '"cool"', true)
       .set(1, 0, "CELL[0][0]()", true),
   );
+
+  const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
+  // The editor value gets commited periodically to the cell for evaluation
 
   useContainer(sheet);
 
@@ -40,6 +39,8 @@ function App() {
     selectedCell.render();
   };
 
+  const editorRef = useRef<null | any>(null);
+  const [editorValue, setEditorValue] = useState("");
   const onCellClick = useCallback((clickedCell: Cell) => {
     setSelectedCell(clickedCell);
     editorRef.current?.focus();
@@ -95,46 +96,36 @@ function App() {
   // - edit col/row sizes
   // - col/row labels
   return (
-    <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
+    <>
       <GridExample
         renderCell={renderCell}
         colCount={sheet.cols}
         rowCount={sheet.rows}
         getRowHeight={getRowHeight}
         getColWidth={getColWidth}
-        width={windowWidth - 400}
+        width={windowWidth}
         height={windowHeight}
       />
-      <div className="sidebar" style={{ flexGrow: 0, width: 400 }}>
-        {selectedCell && (
-          <>
-            <pre>
-              const CELL[{selectedCell.row}][{selectedCell.col}] ={" "}
-            </pre>
-            <Editor
-              onMount={function handleEditorDidMount(editor, monaco) {
-                editorRef.current = editor;
-                editor.focus();
-                const model = editor.getModel();
-                if (!model) {
-                  return;
-                }
-                const lastLineIndex = model.getLineCount();
-                editor.setPosition({
-                  column: model.getLineMaxColumn(lastLineIndex),
-                  lineNumber: lastLineIndex,
-                });
-              }}
-              height="90vh"
-              language="javascript"
-              onChange={onEditorChanged}
-              value={editorValue}
-            />
-          </>
-        )}
-      </div>
-    </div>
+      {selectedCell && (
+        <Sidebar
+          selectedCell={selectedCell}
+          onEditorChange={onEditorChanged}
+          editorValue={editorValue}
+          onEditorMount={function handleEditorDidMount(editor, monaco) {
+            editorRef.current = editor;
+            editor.focus();
+            const model = editor.getModel();
+            if (!model) {
+              return;
+            }
+            const lastLineIndex = model.getLineCount();
+            editor.setPosition({
+              column: model.getLineMaxColumn(lastLineIndex),
+              lineNumber: lastLineIndex,
+            });
+          }}
+        />
+      )}
+    </>
   );
 }
-
-export default App;

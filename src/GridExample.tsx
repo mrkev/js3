@@ -1,17 +1,6 @@
-import { useRef, useState, useCallback, useMemo } from "react";
+import { useCallback, useState } from "react";
 import { Grid, GridCellRenderer } from "react-virtualized";
 import { useResizeObserver } from "./useResizeObserver";
-import ReactDOM from "react-dom";
-
-type Props = {
-  renderCell: GridCellRenderer;
-  getRowHeight: (index: number) => number;
-  getColWidth: (index: number) => number;
-  colCount: number;
-  rowCount: number;
-  width: number;
-  height: number;
-};
 
 // CELL(0,0)
 // RANGE(0,0)(0,10)
@@ -41,7 +30,15 @@ const gridStyle: React.CSSProperties = {
   // pointerEvents: "none",
 };
 
-export default function GridSample(props: Props) {
+export default function GridSample(props: {
+  renderCell: GridCellRenderer;
+  getRowHeight: (index: number) => number;
+  getColWidth: (index: number) => number;
+  colCount: number;
+  rowCount: number;
+  width: number;
+  height: number;
+}) {
   const { overscanColumnCount, overscanRowCount, scrollToColumn, scrollToRow } = {
     overscanColumnCount: 0,
     overscanRowCount: 10,
@@ -60,15 +57,8 @@ export default function GridSample(props: Props) {
   const rowHeight = useCallback(({ index }: any) => getRowHeight(index), [getRowHeight]);
 
   return (
-    <div
-      style={{
-        width: width,
-        height: height,
-        overflow: "hidden",
-        position: "relative",
-      }}
-    >
-      <div style={{ position: "absolute", left: 10, top: 10, background: "red" }}>HELLO</div>
+    <>
+      {/* <div style={{ position: "absolute", left: 10, top: 10, background: "red" }}>HELLO</div> */}
       <Grid
         role="none"
         style={gridStyle}
@@ -100,7 +90,7 @@ export default function GridSample(props: Props) {
         scrollToRow={scrollToRow}
         width={width}
       />
-    </div>
+    </>
   );
   // return (
   //   <div
