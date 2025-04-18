@@ -5,9 +5,7 @@ export function nullthrows<T>(val: T | null | undefined, message?: string): T {
   return val;
 }
 
-export function nonNil<TValue>(
-  value: TValue | null | undefined
-): value is TValue {
+export function nonNil<TValue>(value: TValue | null | undefined): value is TValue {
   return value !== null && value !== undefined;
 }
 

@@ -1,2 +1,1 @@
-export const cx = (...styles: Array<string | boolean>) =>
-  styles.filter(Boolean).join(" ");
+export const cx = (...styles: Array<string | boolean>) => styles.filter(Boolean).join(" ");

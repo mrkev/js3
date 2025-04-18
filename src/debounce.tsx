@@ -4,10 +4,7 @@ type Parameters<T> = T extends (...args: infer T) => any ? T : never;
 type ReturnType<T> = T extends (...args: any[]) => infer T ? T : never;
 
 export type Debounced<T extends Function> = T & { cancel: () => void };
-export function debounce<T extends Function>(
-  callback: T,
-  time: number
-): Debounced<T> {
+export function debounce<T extends Function>(callback: T, time: number): Debounced<T> {
   let timeout: ReturnType<typeof setTimeout> | null = null;
   const debounced = function (...args: Array<any>): any {
     if (timeout) clearTimeout(timeout);
@@ -27,7 +24,7 @@ export function debounce<T extends Function>(
 export function useDebouncedEffect<T extends Function>(
   callback: T,
   time: number,
-  deps: React.DependencyList | undefined
+  deps: React.DependencyList | undefined,
 ) {
   const tRef = useRef<null | number>(null);
   useEffect(
@@ -45,7 +42,7 @@ export function useDebouncedEffect<T extends Function>(
       // reset debounce.
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [time, callback, ...(deps || [])]
+    [time, callback, ...(deps || [])],
   );
 }
 

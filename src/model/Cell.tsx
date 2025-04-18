@@ -43,11 +43,7 @@ export class DOMRep {
     }
   }
 
-  static createElement(
-    type: any,
-    attrs: null | Object,
-    ...children: Array<any>
-  ) {
+  static createElement(type: any, attrs: null | Object, ...children: Array<any>) {
     if (children.length > 0) {
       throw new Error("Child elements are not supported");
     }
@@ -64,28 +60,18 @@ export class DOMRep {
   }
 }
 
-function evaluate(
-  src: string,
-  sheet: Sheet,
-  calledFromCell: Cell
-): EvaledValue | undefined {
+function evaluate(src: string, sheet: Sheet, calledFromCell: Cell): EvaledValue | undefined {
   try {
     // Transform the expression
     const wrappedSrc = `function eCell () {
       /** @jsx DOMRep.createElement */ return ${src}; }`;
-    const { code: transformedSrc } = (window as any).Babel.transform(
-      wrappedSrc,
-      {
-        plugins: ["transform-react-jsx"],
-      }
-    );
+    const { code: transformedSrc } = (window as any).Babel.transform(wrappedSrc, {
+      plugins: ["transform-react-jsx"],
+    });
 
     // eslint-disable-next-line no-new-func
     const funcExpr = new Function("DOMRep", "CELL", "return " + transformedSrc);
-    const result = funcExpr(
-      DOMRep,
-      sheet.getCELLAccessorProxy(calledFromCell)
-    )();
+    const result = funcExpr(DOMRep, sheet.getCELLAccessorProxy(calledFromCell))();
     if (
       !(
         result instanceof DOMRep ||
@@ -96,9 +82,7 @@ function evaluate(
       )
     ) {
       console.log("result", result);
-      throw new Error(
-        "Only booleans, numbres, strings and inputs are supported"
-      );
+      throw new Error("Only booleans, numbres, strings and inputs are supported");
     }
     return result;
   } catch (e) {
@@ -167,10 +151,7 @@ export class Cell {
 
     // Eval the value, "undefined" renders the empty string
     const evaluated = evaluate(this.strValue, this.sheet, this);
-    this.renderValue =
-      typeof evaluated === "undefined"
-        ? (this.renderValue = "")
-        : (this.renderValue = evaluated);
+    this.renderValue = typeof evaluated === "undefined" ? (this.renderValue = "") : (this.renderValue = evaluated);
 
     if (this.renderValue instanceof DOMRep) {
       this.renderValue.onChange = this.cellHTMLInputValueChanged;

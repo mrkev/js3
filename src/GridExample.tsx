@@ -42,13 +42,12 @@ const gridStyle: React.CSSProperties = {
 };
 
 export default function GridSample(props: Props) {
-  const { overscanColumnCount, overscanRowCount, scrollToColumn, scrollToRow } =
-    {
-      overscanColumnCount: 0,
-      overscanRowCount: 10,
-      scrollToColumn: undefined,
-      scrollToRow: undefined,
-    };
+  const { overscanColumnCount, overscanRowCount, scrollToColumn, scrollToRow } = {
+    overscanColumnCount: 0,
+    overscanRowCount: 10,
+    scrollToColumn: undefined,
+    scrollToRow: undefined,
+  };
 
   const { getColWidth, getRowHeight, width, height } = props;
 
@@ -56,15 +55,9 @@ export default function GridSample(props: Props) {
   const [rootElem, setRootElem] = useState<HTMLDivElement | null>(null);
   const rootContentRect = useResizeObserver(rootElem);
 
-  const columnWidth = useCallback(
-    ({ index }: any) => getColWidth(index),
-    [getColWidth]
-  );
+  const columnWidth = useCallback(({ index }: any) => getColWidth(index), [getColWidth]);
 
-  const rowHeight = useCallback(
-    ({ index }: any) => getRowHeight(index),
-    [getRowHeight]
-  );
+  const rowHeight = useCallback(({ index }: any) => getRowHeight(index), [getRowHeight]);
 
   return (
     <div
@@ -75,11 +68,7 @@ export default function GridSample(props: Props) {
         position: "relative",
       }}
     >
-      <div
-        style={{ position: "absolute", left: 10, top: 10, background: "red" }}
-      >
-        HELLO
-      </div>
+      <div style={{ position: "absolute", left: 10, top: 10, background: "red" }}>HELLO</div>
       <Grid
         role="none"
         style={gridStyle}
