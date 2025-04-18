@@ -1,6 +1,6 @@
 import { InitFunctions, JSONOfAuto, map, number, ReplaceFunctions, Structured } from "structured-state";
 import { LinkedMap } from "structured-state/dist/state/LinkedMap";
-import { Cell } from "./Cell";
+import { Cell, evaluateCell } from "./Cell";
 
 type SerializedSheet = {
   rows: number;
@@ -167,7 +167,7 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
         return undefined;
       },
       apply(target, thisArg, argumentsList) {
-        return cell.primitiveValue;
+        return cell.getPrimitiveValue();
       },
     });
   };
@@ -184,7 +184,7 @@ export function cellChanged(cell: Cell) {
   });
   // Separate set because "evaluate" modifies cell.feeds
   toEval.forEach((cell) => {
-    cell.evaluate();
+    evaluateCell(cell);
     cell.render();
   });
   // TODO: call evaluate on cells that depend on this one

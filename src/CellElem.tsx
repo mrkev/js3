@@ -1,9 +1,9 @@
-import { useEffect } from "react";
-import { Cell } from "./model/Cell";
+import React, { useEffect } from "react";
+import { Cell, evaluateCell } from "./model/Cell";
 import { Sheet } from "./model/Sheet";
 import { cx } from "./util";
 
-export function CellElem({
+export const CellElem = React.memo(function CellElem({
   cell,
   sheet,
   onClick,
@@ -16,7 +16,7 @@ export function CellElem({
   selected: boolean;
 }) {
   useEffect(() => {
-    cell.evaluate();
+    evaluateCell(cell);
     cell.render();
   }, [cell, cell.strValue]);
 
@@ -33,4 +33,4 @@ export function CellElem({
       // }}
     ></div>
   );
-}
+});

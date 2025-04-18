@@ -26,8 +26,7 @@ function App() {
   const onEditorChanged = function (value: string | undefined) {
     if (!selectedCell || value == null) return;
     setEditorValue(value);
-    sheet.hashvalue.set(sheet.hashvalue.get() + 1);
-    selectedCell.strValue = value;
+    selectedCell.setStrValue(value);
   };
 
   const onCellClick = useCallback((clickedCell: Cell) => {

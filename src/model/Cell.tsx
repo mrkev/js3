@@ -1,51 +1,26 @@
 import React from "react";
-import { cellChanged, Sheet } from "./Sheet";
 import { DOMRep } from "./DOMRep";
+import { cellChanged, Sheet } from "./Sheet";
+import { CellEvalResult, evalCellJS } from "./evaluateCellJS";
 
 export type Primitive = string | number | boolean;
-type EvaledValue = DOMRep | Primitive | Error;
-
-function evaluate(src: string, sheet: Sheet, calledFromCell: Cell): EvaledValue | undefined {
-  try {
-    // Transform the expression
-    const wrappedSrc = `function eCell () {
-      /** @jsx DOMRep.createElement */ return ${src}; }`;
-    const { code: transformedSrc } = (window as any).Babel.transform(wrappedSrc, {
-      plugins: ["transform-react-jsx"],
-    });
-
-    // eslint-disable-next-line no-new-func
-    const funcExpr = new Function("DOMRep", "CELL", "return " + transformedSrc);
-    const result = funcExpr(DOMRep, sheet.getCELLAccessorProxy(calledFromCell))();
-    if (
-      !(
-        result instanceof DOMRep ||
-        typeof result === "string" ||
-        typeof result === "number" ||
-        typeof result === "boolean" ||
-        typeof result === "undefined"
-      )
-    ) {
-      console.log("result", result);
-      throw new Error("Only booleans, numbres, strings and inputs are supported");
-    }
-    return result;
-  } catch (e) {
-    return new Error((e as any).message);
-  }
-}
 
 export class Cell {
   // The raw string typed into the cell
-  strValue: string = "";
+  public strValue: string = "";
+  public setStrValue(value: string) {
+    this.strValue = value;
+    // console.log("evaled", Cell.evaluate(this));
+  }
+
   // set strValue, evaluate
 
   // The data this cell renders
-  renderValue: EvaledValue = "";
+  public contentValue: CellEvalResult = "";
 
   // The value read by other cells (ie, number for an input range)
   _primitiveValue: Primitive = "";
-  get primitiveValue() {
+  getPrimitiveValue() {
     return this._primitiveValue;
   }
 
@@ -67,12 +42,12 @@ export class Cell {
   ) {}
 
   cellHTMLInputValueChanged = (e: Event) => {
-    if (!(this.renderValue instanceof DOMRep)) {
-      console.log(this.renderValue);
+    if (!(this.contentValue instanceof DOMRep)) {
+      console.log(this.contentValue);
       console.log("This should never happen.");
       return;
     }
-    this.setPrimitiveValue(this.renderValue.getPrimitiveValue());
+    this.setPrimitiveValue(this.contentValue.getPrimitiveValue());
   };
 
   // If I write CELL[0][0](), I depend on CELL[0][0]()
@@ -86,29 +61,9 @@ export class Cell {
     dependency.feeds.delete(this);
   }
 
-  evaluate() {
-    // We don't know who we depend on now
-    this.dependsOn.forEach((dependency) => {
-      this.removeDependency(dependency);
-    });
-
-    // Eval the value, "undefined" renders the empty string
-    const evaluated = evaluate(this.strValue, this.sheet, this);
-    this.renderValue = typeof evaluated === "undefined" ? (this.renderValue = "") : (this.renderValue = evaluated);
-
-    if (this.renderValue instanceof DOMRep) {
-      this.renderValue.onChange = this.cellHTMLInputValueChanged;
-      this.setPrimitiveValue(this.renderValue.getPrimitiveValue());
-    } else if (this.renderValue instanceof Error) {
-      this.setPrimitiveValue(this.renderValue.message);
-    } else {
-      this.setPrimitiveValue(this.renderValue);
-    }
-  }
-
   /** Returns the HTML to be dangerously set in the cell DOM */
   renderToString(): string {
-    const result = this.renderValue;
+    const result = this.contentValue;
 
     if (typeof result === "string") {
       return result;
@@ -143,12 +98,34 @@ export class Cell {
       this.cellRef.current.removeChild(this.cellRef.current.firstChild);
     }
 
-    if (this.renderValue instanceof DOMRep) {
-      const node = this.renderValue.getDOM();
+    if (this.contentValue instanceof DOMRep) {
+      const node = this.contentValue.getDOM();
       this.cellRef.current.appendChild(node);
     } else {
       const node = document.createTextNode(this.renderToString());
       this.cellRef.current.appendChild(node);
     }
   }
+}
+
+export function evaluateCell(cell: Cell) {
+  // We don't know who we depend on now
+  cell.dependsOn.forEach((dependency) => {
+    cell.removeDependency(dependency);
+  });
+
+  // Eval the value, "undefined" renders the empty string
+  const evaluated = evalCellJS(cell.strValue, cell.sheet, cell);
+  cell.contentValue = typeof evaluated === "undefined" ? (cell.contentValue = "") : (cell.contentValue = evaluated);
+
+  if (cell.contentValue instanceof DOMRep) {
+    cell.contentValue.onChange = cell.cellHTMLInputValueChanged;
+    cell.setPrimitiveValue(cell.contentValue.getPrimitiveValue());
+  } else if (cell.contentValue instanceof Error) {
+    cell.setPrimitiveValue(cell.contentValue.message);
+  } else {
+    cell.setPrimitiveValue(cell.contentValue);
+  }
+
+  return evaluated;
 }
