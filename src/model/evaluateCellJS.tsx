@@ -2,9 +2,9 @@ import { Cell, Primitive } from "./Cell";
 import { DOMRep } from "./DOMRep";
 import { Sheet } from "./Sheet";
 
-export type CellEvalResult = Primitive | DOMRep | Error;
+export type CellEvalResult = Primitive | DOMRep | Error | null;
 
-export function evalCellJS(src: string, sheet: Sheet, calledFromCell: Cell): CellEvalResult | undefined {
+export function evalCellJS(src: string, sheet: Sheet, calledFromCell: Cell): CellEvalResult | null {
   try {
     // Transform the expression
     const wrappedSrc = `function eCell () {
@@ -28,7 +28,7 @@ export function evalCellJS(src: string, sheet: Sheet, calledFromCell: Cell): Cel
       console.log("result", result);
       throw new Error("Only booleans, numbres, strings and inputs are supported");
     }
-    return result;
+    return result ?? null;
   } catch (e) {
     return new Error((e as any).message);
   }

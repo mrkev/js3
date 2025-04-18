@@ -1,10 +1,10 @@
 import React from "react";
+import { exhaustive } from "../exhaustive";
 import { DOMRep } from "./DOMRep";
 import { Sheet } from "./Sheet";
 import { CellEvalResult, evalCellJS } from "./evaluateCellJS";
-import { exhaustive } from "../exhaustive";
 
-export type Primitive = string | number | boolean;
+export type Primitive = string | number | boolean | null;
 
 export class Cell {
   // The raw string typed into the cell
@@ -86,7 +86,7 @@ export function evaluateCell(cell: Cell, sheet: Sheet) {
   // Eval the value, "undefined" renders the empty string
   const evaluated = evalCellJS(cell.strValue, sheet, cell);
 
-  cell.contentValue = typeof evaluated === "undefined" ? (cell.contentValue = "") : (cell.contentValue = evaluated);
+  cell.contentValue = evaluated; //typeof evaluated === "undefined" ? (cell.contentValue = "") : (cell.contentValue = evaluated);
   if (cell.contentValue instanceof DOMRep) {
     cell.contentValue.onChange = cell.cellHTMLInputValueChanged;
     cell.setPrimitiveValue(cell.contentValue.getPrimitiveValue());
@@ -117,6 +117,10 @@ function nodeOfContent(content: CellEvalResult): HTMLElement | Text {
 
   if (typeof content === "boolean") {
     return document.createTextNode(String(content));
+  }
+
+  if (content === null) {
+    return document.createTextNode("");
   }
 
   if (content instanceof Error) {
