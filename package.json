@@ -4,20 +4,15 @@
   "private": true,
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
-    "@types/node": "^16.4.7",
-    "@types/react": "^17.0.15",
-    "@types/react-dom": "^17.0.9",
-    "babel-preset-react-app": "^10.0.1",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
     "eslint": "^9.24.0",
     "eslint-config-react-app": "^7.0.1",
-    "jest-watch-typeahead": "^1.0.0",
     "prettier": "^3.5.3",
-    "react": "^17.0.2",
-    "react-app-polyfill": "^3.0.0",
-    "react-dom": "^17.0.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "react-virtualized": "^9.22.6",
-    "typescript": "^5.8.3",
-    "web-vitals": "^2.1.0"
+    "typescript": "^5.8.3"
   },
   "scripts": {
     "dev": "vite",

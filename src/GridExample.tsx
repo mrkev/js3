@@ -52,18 +52,18 @@ export default function GridSample(props: Props) {
 
   const { getColWidth, getRowHeight, width, height } = props;
 
-  const gridRef = useRef<null | HTMLDivElement>(null);
+  // const gridRef = useRef<null | HTMLDivElement>(null);
   const [rootElem, setRootElem] = useState<HTMLDivElement | null>(null);
   const rootContentRect = useResizeObserver(rootElem);
 
   const columnWidth = useCallback(
-    ({ index }) => getColWidth(index),
-    [getColWidth],
+    ({ index }: any) => getColWidth(index),
+    [getColWidth]
   );
 
   const rowHeight = useCallback(
-    ({ index }) => getRowHeight(index),
-    [getRowHeight],
+    ({ index }: any) => getRowHeight(index),
+    [getRowHeight]
   );
 
   return (
@@ -83,18 +83,20 @@ export default function GridSample(props: Props) {
       <Grid
         role="none"
         style={gridStyle}
-        ref={(instance) => {
-          const elem = ReactDOM.findDOMNode(instance);
-          if (!(elem instanceof HTMLDivElement)) {
-            return;
-          }
-          gridRef.current = elem;
-        }}
-        onScroll={function () {
-          if (gridRef.current) {
-            console.log(gridRef.current.scrollLeft);
-          }
-        }}
+        // ref={(instance) => {
+        //   instance.
+        //   console.log(instance);
+        //   const elem = ReactDOM.findDOMNode(instance);
+        //   if (!(elem instanceof HTMLDivElement)) {
+        //     return;
+        //   }
+        //   gridRef.current = elem;
+        // }}
+        // onScroll={function () {
+        //   if (gridRef.current) {
+        //     console.log(gridRef.current.scrollLeft);
+        //   }
+        // }}
         // tabIndex={-1}
         cellRenderer={props.renderCell}
         columnWidth={columnWidth}
