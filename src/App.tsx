@@ -17,39 +17,22 @@ const sheet = Sheet.ofDimensions(SIZE, SIZE)
 
 function App() {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
-  // const [sheet, setSheet] = useState(defaultSheet);
   const editorRef = useRef<null | any>(null);
   // The editor value gets commited periodically to the cell for evaluation
   const [editorValue, setEditorValue] = useState("");
 
   useContainer(sheet);
 
-  useEffect(
-    function selectionChanged() {
-      const editor = editorRef.current;
-      if (editor == null) {
-        return;
-      }
-      editor.focus();
-    },
-    [selectedCell],
-  );
-
-  function commitEditorValue() {
-    if (!selectedCell) return;
-    // setSheet();
-    sheet.set(selectedCell.row, selectedCell.col, editorValue || "");
-  }
-
   const onEditorChanged = function (value: string | undefined) {
     if (!selectedCell || value == null) return;
     setEditorValue(value);
-    // TODO debounce
-    commitEditorValue();
+    sheet.hashvalue.set(sheet.hashvalue.get() + 1);
+    selectedCell.strValue = value;
   };
 
   const onCellClick = useCallback((clickedCell: Cell) => {
     setSelectedCell(clickedCell);
+    editorRef.current?.focus();
     setEditorValue(clickedCell.strValue);
   }, []);
 
@@ -63,6 +46,7 @@ function App() {
       return (
         <CellElem
           style={style}
+          sheet={sheet}
           key={cell.row * SIZE + cell.col}
           cell={cell}
           onClick={onCellClick}
@@ -105,8 +89,8 @@ function App() {
     <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
       <GridExample
         renderCell={renderCell}
-        colCount={sheet.numCols()}
-        rowCount={sheet.numRows()}
+        colCount={sheet.cols}
+        rowCount={sheet.rows}
         getRowHeight={getRowHeight}
         getColWidth={getColWidth}
         width={windowWidth - 400}

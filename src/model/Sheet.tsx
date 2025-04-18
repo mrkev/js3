@@ -1,7 +1,14 @@
-import { InitFunctions, JSONOfAuto, number, ReplaceFunctions, Structured } from "structured-state";
+import { InitFunctions, JSONOfAuto, map, number, ReplaceFunctions, Structured } from "structured-state";
+import { LinkedMap } from "structured-state/dist/state/LinkedMap";
 import { Cell } from "./Cell";
 
-type SerializedSheet = {};
+type SerializedSheet = {
+  rows: number;
+  cols: number;
+  // cellMap: SMap<CellID, Cell>;
+};
+
+type CellID = `r:${number}-c:${number}`;
 
 /**
  * The Spreadsheet. Note:
@@ -14,28 +21,32 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   replace(autoJson: JSONOfAuto<SerializedSheet>, replace: ReplaceFunctions): void {
     throw new Error("Method not implemented.");
   }
+
   autoSimplify(): SerializedSheet {
-    return {};
+    const { rows, cols } = this;
+    return { rows, cols };
   }
 
   static construct(auto: JSONOfAuto<SerializedSheet>, init: InitFunctions): Sheet {
-    return Structured.create(Sheet);
+    return Structured.create(Sheet, auto.rows, auto.cols, map());
   }
 
   _grid: Array<Array<Cell>> = [];
   _rowSizes: { [row: number]: number } = {};
   _colSizes: { [col: number]: number } = {};
-  _dims: { rows: number; cols: number } = { rows: 0, cols: 0 };
 
-  constructor() {
+  constructor(
+    readonly rows: number,
+    readonly cols: number,
+    readonly cellsWithValue: LinkedMap<CellID, Cell>,
+  ) {
     super();
     (window as any).sheet = this;
   }
 
   static ofDimensions(rows: number, cols: number) {
-    const sheet = Structured.create(Sheet);
+    const sheet = Structured.create(Sheet, rows, cols, map());
     sheet._grid = [...new Array(rows)].map((_, r) => [...new Array(cols)].map((_, c) => new Cell(sheet, r, c)));
-    sheet._dims = { rows, cols };
     return sheet;
   }
 
@@ -50,8 +61,8 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   }
 
   set(r: number, c: number, value: string): Sheet {
-    if (r >= this._dims.rows || c >= this._dims.cols) {
-      console.log(this._dims);
+    if (r >= this.rows || c >= this.cols) {
+      console.log("set on", this.rows, this.cols);
       throw new Error(`Can't set value for non-existing cell at ${r}:${c}`);
     }
     this._grid[r][c].strValue = value;
@@ -60,7 +71,7 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   }
 
   get(r: number, c: number): Cell | null {
-    if (r >= this._dims.rows || c >= this._dims.cols) {
+    if (r >= this.rows || c >= this.cols) {
       return null;
     }
     const cell = this._grid[r][c];
@@ -68,14 +79,6 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   }
 
   ///////////////////////// DISPLAY + SIZES //////////////////////////////
-
-  numRows() {
-    return this._dims.rows;
-  }
-
-  numCols() {
-    return this._dims.cols;
-  }
 
   getExplicitRowHeight(row: number): number | null {
     if (this._rowSizes[row] === undefined) {
@@ -107,23 +110,6 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     } else {
       this._colSizes[col] = val;
     }
-  }
-
-  ///////////////////////////// UPDATES ////////////////////////////////
-
-  cellChanged(cell: Cell) {
-    // todo: investigate, does this get called on every re-render?
-    // console.log("changed", cell.row, cell.col, cell.primitiveValue);
-    const toEval = new Set<Cell>();
-    cell.feeds.forEach(function (fed) {
-      toEval.add(fed);
-    });
-    // Separate set because "evaluate" modifies cell.feeds
-    toEval.forEach((cell) => {
-      cell.evaluate();
-      cell.render();
-    });
-    // TODO: call evaluate on cells that depend on this one
   }
 
   //////////////////////////// CELL PROXY //////////////////////////////
@@ -185,4 +171,21 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
       },
     });
   };
+}
+
+///////////////////////////// UPDATES ////////////////////////////////
+
+export function cellChanged(cell: Cell) {
+  // todo: investigate, does this get called on every re-render?
+  // console.log("changed", cell.row, cell.col, cell.primitiveValue);
+  const toEval = new Set<Cell>();
+  cell.feeds.forEach(function (fed) {
+    toEval.add(fed);
+  });
+  // Separate set because "evaluate" modifies cell.feeds
+  toEval.forEach((cell) => {
+    cell.evaluate();
+    cell.render();
+  });
+  // TODO: call evaluate on cells that depend on this one
 }
