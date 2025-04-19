@@ -1,16 +1,8 @@
-.spreadsheet {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: minmax(100px, auto);
-  border-bottom: 1px solid black;
-  border-left: 1px solid black;
-}
-
 .cell {
   /* padding: 15px; */
   text-align: center;
-  border-top: 1px solid black;
-  border-right: 1px solid black;
+  border-bottom: 1px solid gray;
+  border-right: 1px solid gray;
   /* outline: 1px solid gray; */
   box-sizing: border-box;
 }

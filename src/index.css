@@ -3,6 +3,7 @@ body,
 #root {
   height: 100%;
   width: 100%;
+  font-size: 14px;
 }
 
 body {
@@ -16,4 +17,8 @@ body {
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.overflow_hidden_important {
+  overflow: hidden !important;
 }

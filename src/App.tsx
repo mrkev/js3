@@ -1,15 +1,15 @@
+import "@csstools/normalize.css";
 import { useCallback, useEffect, useState } from "react";
 import { GridCellProps } from "react-virtualized";
 import { useContainer } from "structured-state";
 import "./App.css";
 import { CellElem } from "./CellElem";
-
 import { Cell } from "./model/Cell";
 import { evaluateCell } from "./model/Evaluator";
 import { Sheet } from "./model/Sheet";
 import { Sidebar } from "./Sidebar";
-import useClientSize from "./useClientSize";
 import { SpreadsheetGrid } from "./SpreadsheetGrid";
+import useClientSize from "./useClientSize";
 
 const SIZE = 100;
 
