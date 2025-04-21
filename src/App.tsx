@@ -34,10 +34,8 @@ export function App() {
     sheet.flushEvalQueue();
   }, [sheet]);
 
-  const [editorValue, setEditorValue] = useState("");
   const onCellClick = useCallback((clickedCell: Cell) => {
     setSelectedCell(clickedCell);
-    setEditorValue(clickedCell.strValue.get());
   }, []);
 
   const renderCell = useCallback(
@@ -64,21 +62,19 @@ export function App() {
 
   // TODO:
   // - edit col/row sizes
-  // - col/row labels
   return (
     <>
       <SpreadsheetGrid sheet={sheet} renderCell={renderCell} width={windowWidth} height={windowHeight} />
       <FloatingPanel />
       {selectedCell && (
         <Sidebar
-          selectedCell={selectedCell}
+          sheet={sheet}
           onEditorChange={(value) => {
             if (value == null) return;
             selectedCell.strValue.set(value);
             evaluateCell(selectedCell, sheet);
             selectedCell.render();
           }}
-          editorValue={editorValue}
         />
       )}
     </>

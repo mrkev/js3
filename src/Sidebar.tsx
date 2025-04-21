@@ -1,21 +1,29 @@
 import Editor from "@monaco-editor/react";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import { Cell } from "./model/Cell";
+import { Sheet } from "./model/Sheet";
+import { usePrimitive } from "structured-state";
 
 export function Sidebar({
-  selectedCell,
+  sheet,
   onEditorChange,
-  editorValue,
 }: {
-  selectedCell: Cell;
+  sheet: Sheet;
+  // selectedCell: Cell;
   onEditorChange: (value: string | undefined) => void;
-  editorValue: string | undefined;
 }) {
+  const [editorValue, setEditorValue] = useState("");
+  const [selectedCell] = usePrimitive(sheet.selectedCell);
+
   const editorRef = useRef<null | any>(null);
   useEffect(() => {
-    editorRef.current?.focus();
+    setEditorValue(selectedCell?.strValue.get() ?? "");
   }, [selectedCell]);
+
+  if (selectedCell == null) {
+    return null;
+  }
 
   return (
     <div
@@ -39,7 +47,7 @@ export function Sidebar({
         <Editor
           onMount={function handleEditorDidMount(editor, monaco) {
             editorRef.current = editor;
-            editor.focus();
+            // editor.focus();
             const model = editor.getModel();
             if (!model) {
               return;

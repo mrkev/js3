@@ -64,7 +64,6 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     }
 
     cell.contentValue.dom.dataset["cellid"] = cellID(cell.row, cell.col);
-    // cell.contentValue.onChange = cell.cellHTMLInputValueChanged;
     cell.contentValue.dom.oninput = this.widgetChanged;
     cell.contentValue.dom.onchange = this.widgetChanged;
   }
