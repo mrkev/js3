@@ -1,42 +1,50 @@
 import { Primitive } from "./Cell";
 
+export type InputContent = {
+  kind: "input";
+  dom: HTMLInputElement;
+};
+
 /** a dom element represented in a cell */
 export class DOMRep {
-  type: "input";
-  attrs: { [key: string]: string };
-  domRep: HTMLInputElement;
+  readonly dom: HTMLInputElement;
 
   set onChange(cb: (e: Event) => void) {
     // todo, remove event listener
-    this.domRep.addEventListener("change", cb);
+    this.dom.addEventListener("change", cb);
   }
 
-  constructor(type: "input", attrs: { [key: string]: string }) {
-    this.type = type;
+  constructor(
+    readonly type: "input",
+    readonly attrs: { [key: string]: string },
+  ) {
     this.attrs = attrs;
+    const { className, ...rest } = attrs;
 
     // Create the element
-    this.domRep = document.createElement(this.type);
+    this.dom = document.createElement(this.type);
+    this.dom.className = "cellInput " + className;
     // todo: remove event listener
-    this.domRep.addEventListener("click", function (e) {
+
+    // this.dom.oninput = function (e) {
+    //   console.log("input");
+    // };
+
+    this.dom.addEventListener("click", function (e) {
       // e.preventDefault();
       e.stopPropagation();
     });
-    for (let key in this.attrs) {
-      this.domRep.setAttribute(key, this.attrs[key]);
+    for (let [key, value] of Object.entries(rest)) {
+      this.dom.setAttribute(key, value);
     }
-  }
-
-  getDOM() {
-    return this.domRep;
   }
 
   getPrimitiveValue(): Primitive {
     switch (this.attrs.type) {
       case "range":
-        return parseInt(this.domRep.value);
+        return parseInt(this.dom.value);
       default:
-        return this.domRep.value;
+        return this.dom.value;
     }
   }
 

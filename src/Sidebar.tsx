@@ -55,6 +55,7 @@ export function Sidebar({
           onChange={onEditorChange}
           value={editorValue}
         />
+        <pre>TODO: - resize columns</pre>
       </div>
     </div>
   );

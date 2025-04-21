@@ -1,16 +1,16 @@
 import { InitFunctions, JSONOfAuto, map, number, ReplaceFunctions, Structured } from "structured-state";
 import { LinkedMap } from "structured-state/dist/state/LinkedMap";
 import { Cell } from "./Cell";
+import { DOMRep } from "./DOMRep";
 import { Evaluator } from "./Evaluator";
-import { LinkedPrimitive } from "structured-state/dist/state/LinkedPrimitive";
+import { cellID, CellID, posOfId } from "./cellID";
+import { nullthrows } from "../nullthrows";
 
 type SerializedSheet = {
   rows: number;
   cols: number;
   // cellMap: SMap<CellID, Cell>;
 };
-
-type CellID = `r:${number}-c:${number}`;
 
 /**
  * The Spreadsheet. Note:
@@ -47,6 +47,33 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     this.evaluator = new Evaluator(this);
     (window as any).sheet = this;
   }
+
+  registerWidgetAtCell(cell: Cell) {
+    if (!(cell.contentValue instanceof DOMRep)) {
+      console.warn("no widget to register");
+      return;
+    }
+
+    cell.contentValue.dom.dataset["cellid"] = cellID(cell.row, cell.col);
+    // cell.contentValue.onChange = cell.cellHTMLInputValueChanged;
+    cell.contentValue.dom.oninput = this.widgetChanged;
+    cell.contentValue.dom.onchange = this.widgetChanged;
+  }
+
+  widgetChanged = (e: Event) => {
+    if (!(e.target instanceof HTMLInputElement) || typeof e.target.dataset["cellid"] !== "string") {
+      console.warn("This should never happen.");
+      return;
+    }
+
+    const cid = e.target.dataset["cellid"];
+    const { row, col } = posOfId(cid as CellID);
+    const cell = nullthrows(this.get(row, col));
+
+    cell.updatePrimitive();
+    this.evaluator.queueEvaluation(cell, "depsonly");
+    this.evaluator.evalAll();
+  };
 
   static ofDimensions(rows: number, cols: number) {
     const sheet = Structured.create(Sheet, rows, cols, map());

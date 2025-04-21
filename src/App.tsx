@@ -10,6 +10,7 @@ import { Sheet } from "./model/Sheet";
 import { Sidebar } from "./Sidebar";
 import { SpreadsheetGrid } from "./SpreadsheetGrid";
 import useClientSize from "./useClientSize";
+import { FloatingPanel } from "@/components/floating-panel";
 
 const SIZE = 100;
 
@@ -65,6 +66,7 @@ export function App() {
   return (
     <>
       <SpreadsheetGrid sheet={sheet} renderCell={renderCell} width={windowWidth} height={windowHeight} />
+      <FloatingPanel />
       {selectedCell && (
         <Sidebar
           selectedCell={selectedCell}

@@ -46,11 +46,10 @@ export function evaluateCell(cell: Cell, sheet: Sheet) {
   console.log(`${cell.row}:${cell.col} evaled`, cell.contentValue);
 
   if (cell.contentValue instanceof DOMRep) {
-    cell.contentValue.onChange = cell.cellHTMLInputValueChanged;
+    sheet.registerWidgetAtCell(cell);
   }
 
-  const primitive = primitiveOf(cell.contentValue);
-  cell.setPrimitiveValue(primitive);
+  cell.updatePrimitive();
 
   sheet.evaluator.queueEvaluation(cell, "depsonly");
   sheet.evaluator.evalAll();

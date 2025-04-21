@@ -24,6 +24,11 @@ export class Cell {
     return this._primitiveValue;
   }
 
+  updatePrimitive() {
+    const primitive = primitiveOf(this.contentValue);
+    this._primitiveValue = primitive;
+  }
+
   setPrimitiveValue(primitive: Primitive) {
     this._primitiveValue = primitive;
   }
@@ -97,7 +102,7 @@ export function primitiveOf(content: CellEvalResult): Primitive {
 /** Returns the HTML to be directly set in the cell DOM */
 function nodeOfContent(content: CellEvalResult): HTMLElement | Text {
   if (content instanceof DOMRep) {
-    return content.getDOM();
+    return content.dom;
   }
 
   if (typeof content === "string") {
