@@ -37,7 +37,7 @@ export function App() {
   const [editorValue, setEditorValue] = useState("");
   const onCellClick = useCallback((clickedCell: Cell) => {
     setSelectedCell(clickedCell);
-    setEditorValue(clickedCell.strValue);
+    setEditorValue(clickedCell.strValue.get());
   }, []);
 
   const renderCell = useCallback(
@@ -74,7 +74,7 @@ export function App() {
           selectedCell={selectedCell}
           onEditorChange={(value) => {
             if (value == null) return;
-            selectedCell.setStrValue(value);
+            selectedCell.strValue.set(value);
             evaluateCell(selectedCell, sheet);
             selectedCell.render();
           }}

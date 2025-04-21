@@ -1,22 +1,36 @@
 import React from "react";
+import { JSONOfAuto, ReplaceFunctions, string, Structured } from "structured-state";
 import { exhaustive } from "../exhaustive";
 import { DOMRep } from "./DOMRep";
-import { Sheet } from "./Sheet";
 import { CellEvalResult } from "./evaluateCellJS";
 
 export type Primitive = string | number | boolean | null;
 
-export class Cell {
+type SCell = {
+  row: number;
+  col: number;
+};
+
+export class Cell extends Structured<SCell, typeof Cell> {
   // The raw string typed into the cell
-  public strValue: string = "";
-  public setStrValue(value: string) {
-    this.strValue = value;
-    // console.log("evaled", Cell.evaluate(this));
-  }
-  // set strValue, evaluate
+  public readonly strValue = string("");
 
   // The data this cell renders
   public contentValue: CellEvalResult = "";
+
+  public readonly cellRef = React.createRef<HTMLDivElement | null>();
+
+  // Cells this cell sends data to. "children", in a dependency tree
+  // todo: keep dep map separate, on evaluator?
+  feeds: Set<Cell> = new Set();
+  dependsOn: Set<Cell> = new Set();
+
+  constructor(
+    readonly row: number,
+    readonly col: number,
+  ) {
+    super();
+  }
 
   // The value read by other cells (ie, number for an input range)
   _primitiveValue: Primitive = "";
@@ -33,33 +47,11 @@ export class Cell {
     this._primitiveValue = primitive;
   }
 
-  // Cells this cell sends data to. "children", in a dependency tree
-  feeds: Set<Cell> = new Set();
-  dependsOn: Set<Cell> = new Set();
-
-  readonly cellRef = React.createRef<HTMLDivElement | null>();
-  setRef = (elem: HTMLDivElement | null) => {
+  readonly setRef = (elem: HTMLDivElement | null) => {
     this.cellRef.current = elem;
     if (elem) {
       this.render();
     }
-  };
-
-  constructor(
-    readonly sheet: Sheet,
-    readonly row: number,
-    readonly col: number,
-  ) {}
-
-  cellHTMLInputValueChanged = (e: Event) => {
-    if (!(this.contentValue instanceof DOMRep)) {
-      console.log(this.contentValue);
-      console.log("This should never happen.");
-      return;
-    }
-    this.setPrimitiveValue(this.contentValue.getPrimitiveValue());
-    this.sheet.evaluator.queueEvaluation(this, "depsonly");
-    this.sheet.evaluator.evalAll();
   };
 
   // If I write CELL[0][0](), I depend on CELL[0][0]()
@@ -86,6 +78,26 @@ export class Cell {
 
     const node = nodeOfContent(this.contentValue);
     this.cellRef.current.appendChild(node);
+  }
+
+  ////////////////////
+  replace(autoJson: JSONOfAuto<SCell>, replace: ReplaceFunctions): void {
+    throw new Error("Method not implemented.");
+  }
+
+  autoSimplify(): SCell {
+    return {
+      row: this.row,
+      col: this.col,
+    };
+  }
+
+  static of(row: number, col: number) {
+    return Structured.create(Cell, row, col);
+  }
+
+  static construct({ row, col }: SCell) {
+    return Structured.create(Cell, row, col);
   }
 }
 

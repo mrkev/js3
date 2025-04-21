@@ -21,7 +21,7 @@ export class Evaluator {
   evalAll() {
     let next: Cell | undefined;
     while ((next = this.queue.pop())) {
-      evaluateCell(next, next.sheet);
+      evaluateCell(next, this.sheet);
       // todo: separate rendering?
       next.render();
     }
@@ -41,7 +41,7 @@ export function evaluateCell(cell: Cell, sheet: Sheet) {
     cell.removeDependency(dependency);
   });
 
-  const evaluated = evalCellJS(cell.strValue, sheet, cell);
+  const evaluated = evalCellJS(cell.strValue.get(), sheet, cell);
   cell.contentValue = evaluated;
   console.log(`${cell.row}:${cell.col} evaled`, cell.contentValue);
 
@@ -69,7 +69,7 @@ export function cellChanged(cell: Cell) {
 
   // Separate set because "evaluate" modifies cell.feeds
   toEval.forEach((cell) => {
-    evaluateCell(cell, cell.sheet);
+    // evaluateCell(cell, cell.sheet);
     cell.render();
   });
   // TODO: call evaluate on cells that depend on this one

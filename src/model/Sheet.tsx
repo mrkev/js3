@@ -86,7 +86,7 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
 
   static ofDimensions(rows: number, cols: number) {
     const sheet = Structured.create(Sheet, rows, cols, map());
-    sheet._grid = [...new Array(rows)].map((_, r) => [...new Array(cols)].map((_, c) => new Cell(sheet, r, c)));
+    sheet._grid = [...new Array(rows)].map((_, r) => [...new Array(cols)].map((_, c) => Cell.of(r, c)));
     return sheet;
   }
 
@@ -106,7 +106,7 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
       throw new Error(`Can't set value for non-existing cell at ${r}:${c}`);
     }
     const cell = this._grid[r][c];
-    cell.strValue = value;
+    cell.strValue.set(value);
     queue && this.evaluator.queueEvaluation(cell, "cellanddeps");
     this.hashvalue.set(this.hashvalue.get() + 1);
     return this;
