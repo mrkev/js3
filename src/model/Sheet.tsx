@@ -1,10 +1,18 @@
-import { InitFunctions, JSONOfAuto, map, number, ReplaceFunctions, Structured } from "structured-state";
-import { LinkedMap } from "structured-state/dist/state/LinkedMap";
+import {
+  InitFunctions,
+  JSONOfAuto,
+  map,
+  number,
+  ReplaceFunctions,
+  SMap,
+  SPrimitive,
+  Structured,
+} from "structured-state";
+import { nullthrows } from "../nullthrows";
 import { Cell } from "./Cell";
 import { DOMRep } from "./DOMRep";
 import { Evaluator } from "./Evaluator";
 import { cellID, CellID, posOfId } from "./cellID";
-import { nullthrows } from "../nullthrows";
 
 type SerializedSheet = {
   rows: number;
@@ -20,6 +28,7 @@ type SerializedSheet = {
 export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   readonly hashvalue = number(0);
   readonly evaluator: Evaluator;
+  readonly selectedCell = SPrimitive.of<Cell | null>(null);
 
   replace(autoJson: JSONOfAuto<SerializedSheet>, replace: ReplaceFunctions): void {
     throw new Error("Method not implemented.");
@@ -41,7 +50,7 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   constructor(
     readonly rows: number,
     readonly cols: number,
-    readonly cellsWithValue: LinkedMap<CellID, Cell>,
+    readonly cellsWithValue: SMap<CellID, Cell>,
   ) {
     super();
     this.evaluator = new Evaluator(this);

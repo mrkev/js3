@@ -1,7 +1,7 @@
 import "@csstools/normalize.css";
 import { useCallback, useEffect, useState } from "react";
 import { GridCellProps } from "react-virtualized";
-import { useContainer } from "structured-state";
+import { useContainer, usePrimitive } from "structured-state";
 import "./App.css";
 import { CellElem } from "./CellElem";
 import { Cell } from "./model/Cell";
@@ -11,6 +11,7 @@ import { Sidebar } from "./Sidebar";
 import { SpreadsheetGrid } from "./SpreadsheetGrid";
 import useClientSize from "./useClientSize";
 import { FloatingPanel } from "@/components/floating-panel";
+import { useDocumentKeyboardEvents } from "./command/useDocumentKeyboardEvents";
 
 const SIZE = 100;
 
@@ -22,7 +23,8 @@ export function App() {
       .set(1, 0, "CELL[0][0]()", true),
   );
 
-  const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
+  const [selectedCell, setSelectedCell] = usePrimitive<Cell | null>(sheet.selectedCell);
+  useDocumentKeyboardEvents(sheet);
 
   useContainer(sheet);
 
