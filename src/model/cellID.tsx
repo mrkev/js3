@@ -4,10 +4,11 @@ export function cellID(row: number, col: number): CellID {
   return `r:${row}-c:${col}`;
 }
 
-const ID_REGEX = /^r:(\d+)-c:(\d+)$/gm;
+const ID_REGEX = /^r:(\d+)-c:(\d+)$/m;
 
 export function posOfId(id: CellID) {
   const result = ID_REGEX.exec(id);
+
   if (result == null) {
     throw new Error("recieved non-id " + id);
   }
