@@ -1,6 +1,7 @@
 import React from "react";
 import { JSONOfAuto, ReplaceFunctions, string, Structured } from "structured-state";
 import { exhaustive } from "../exhaustive";
+import { cellID } from "./cellID";
 import { DOMRep } from "./DOMRep";
 import { CellEvalResult } from "./evaluateCellJS";
 
@@ -25,11 +26,13 @@ export class Cell extends Structured<SCell, typeof Cell> {
   feeds: Set<Cell> = new Set();
   dependsOn: Set<Cell> = new Set();
 
+  readonly cellid: string;
   constructor(
     readonly row: number,
     readonly col: number,
   ) {
     super();
+    this.cellid = cellID(row, col);
   }
 
   // The value read by other cells (ie, number for an input range)

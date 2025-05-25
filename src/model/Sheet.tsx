@@ -28,7 +28,8 @@ type SerializedSheet = {
 export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   readonly hashvalue = number(0);
   readonly evaluator: Evaluator;
-  readonly selectedCell = SPrimitive.of<Cell | null>(null);
+  readonly selectedCell: SPrimitive<Cell>;
+  readonly selectionStatus = SPrimitive.of<"editing" | "superficial" | "widget">("superficial");
 
   replace(autoJson: JSONOfAuto<SerializedSheet>, replace: ReplaceFunctions): void {
     throw new Error("Method not implemented.");
@@ -40,10 +41,15 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   }
 
   static construct(auto: JSONOfAuto<SerializedSheet>, init: InitFunctions): Sheet {
-    return Structured.create(Sheet, auto.rows, auto.cols, map());
+    return Structured.create(Sheet, auto.rows, auto.cols, map(), []);
   }
 
-  _grid: Array<Array<Cell>> = [];
+  static ofDimensions(rows: number, cols: number) {
+    const grid = [...new Array(rows)].map((_, r) => [...new Array(cols)].map((_, c) => Cell.of(r, c)));
+    const sheet = Structured.create(Sheet, rows, cols, map(), grid);
+    return sheet;
+  }
+
   _rowSizes: { [row: number]: number } = {};
   _colSizes: { [col: number]: number } = {};
 
@@ -51,9 +57,11 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     readonly rows: number,
     readonly cols: number,
     readonly cellsWithValue: SMap<CellID, Cell>,
+    readonly _grid: Array<Array<Cell>>,
   ) {
     super();
     this.evaluator = new Evaluator(this);
+    this.selectedCell = SPrimitive.of<Cell>(this._grid[0][0]);
     (window as any).sheet = this;
   }
 
@@ -82,12 +90,6 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     this.evaluator.queueEvaluation(cell, "depsonly");
     this.evaluator.evalAll();
   };
-
-  static ofDimensions(rows: number, cols: number) {
-    const sheet = Structured.create(Sheet, rows, cols, map());
-    sheet._grid = [...new Array(rows)].map((_, r) => [...new Array(cols)].map((_, c) => Cell.of(r, c)));
-    return sheet;
-  }
 
   map<T>(fn: (cell: Cell, row: number, column: number) => T): Array<T> {
     const result = [];

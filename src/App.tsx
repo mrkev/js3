@@ -1,19 +1,16 @@
+import { FloatingPanel } from "@/components/floating-panel";
 import "@csstools/normalize.css";
-import { useCallback, useEffect, useState } from "react";
-import { GridCellProps } from "react-virtualized";
+import { useEffect, useState } from "react";
 import { useContainer, usePrimitive } from "structured-state";
 import "./App.css";
-import { CellElem } from "./CellElem";
+import { useDocumentKeyboardEvents } from "./command/useDocumentKeyboardEvents";
 import { Cell } from "./model/Cell";
 import { evaluateCell } from "./model/Evaluator";
 import { Sheet } from "./model/Sheet";
-import { Sidebar } from "./Sidebar";
 import { SpreadsheetGrid } from "./SpreadsheetGrid";
 import useClientSize from "./useClientSize";
-import { FloatingPanel } from "@/components/floating-panel";
-import { useDocumentKeyboardEvents } from "./command/useDocumentKeyboardEvents";
 
-const SIZE = 100;
+export const SIZE = 100;
 
 export function App() {
   const [sheet] = useState(() =>
@@ -23,7 +20,7 @@ export function App() {
       .set(1, 0, "CELL[0][0]()", true),
   );
 
-  const [selectedCell, setSelectedCell] = usePrimitive<Cell | null>(sheet.selectedCell);
+  const [selectedCell, setSelectedCell] = usePrimitive<Cell>(sheet.selectedCell);
   useDocumentKeyboardEvents(sheet);
 
   useContainer(sheet);
@@ -34,49 +31,32 @@ export function App() {
     sheet.flushEvalQueue();
   }, [sheet]);
 
-  const onCellClick = useCallback((clickedCell: Cell) => {
-    setSelectedCell(clickedCell);
-  }, []);
-
-  const renderCell = useCallback(
-    function renderCell({ columnIndex, key, rowIndex, style }: GridCellProps) {
-      const cell = sheet.get(rowIndex, columnIndex);
-      if (!cell) {
-        return <div>This shouldn't happen</div>;
-      }
-
-      return (
-        <CellElem
-          style={style}
-          key={cell.row * SIZE + cell.col}
-          cell={cell}
-          onClick={onCellClick}
-          selected={selectedCell === cell}
-        />
-      );
-    },
-    [onCellClick, selectedCell, sheet],
-  );
-
   const [windowWidth, windowHeight] = useClientSize();
 
   // TODO:
   // - edit col/row sizes
   return (
     <>
-      <SpreadsheetGrid sheet={sheet} renderCell={renderCell} width={windowWidth} height={windowHeight} />
-      <FloatingPanel />
-      {selectedCell && (
-        <Sidebar
-          sheet={sheet}
-          onEditorChange={(value) => {
-            if (value == null) return;
-            selectedCell.strValue.set(value);
-            evaluateCell(selectedCell, sheet);
-            selectedCell.render();
-          }}
-        />
-      )}
+      <SpreadsheetGrid sheet={sheet} width={windowWidth} height={windowHeight} />
+      <FloatingPanel
+        sheet={sheet}
+        onEditorChange={(value) => {
+          if (value == null) return;
+          selectedCell.strValue.set(value);
+          evaluateCell(selectedCell, sheet);
+          selectedCell.render();
+        }}
+      />
+
+      {/* <Sidebar
+        sheet={sheet}
+        onEditorChange={(value) => {
+          if (value == null) return;
+          selectedCell.strValue.set(value);
+          evaluateCell(selectedCell, sheet);
+          selectedCell.render();
+        }}
+      /> */}
     </>
   );
 }

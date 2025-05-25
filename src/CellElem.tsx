@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Cell } from "./model/Cell";
 import { cx } from "./util";
 
@@ -14,15 +14,13 @@ export const CellElem = React.memo(function CellElem({
 }) {
   return (
     <div
+      data-cellid={cell.cellid}
+      tabIndex={0}
       role="gridcell"
       style={style}
       ref={cell.setRef}
       className={cx("cell", selected && "selected")}
       onClick={() => onClick(cell)}
-      // onMouseDown={(e) => {
-      //   onClick(cell);
-      //   e.stopPropagation();
-      // }}
     ></div>
   );
 });

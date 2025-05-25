@@ -1,19 +1,14 @@
 import classNames from "classnames";
 import { useCallback } from "react";
 import { createUseStyles } from "react-jss";
-import {
-  AutoSizer,
-  Grid,
-  GridCellProps,
-  GridCellRenderer,
-  Index,
-  ScrollSync,
-  ScrollSyncChildProps,
-  Size,
-} from "react-virtualized";
+import { AutoSizer, Grid, GridCellProps, Index, ScrollSync, ScrollSyncChildProps, Size } from "react-virtualized";
 import "react-virtualized/styles.css";
+import { usePrimitive } from "structured-state";
+import { SIZE } from "./App";
+import { CellElem } from "./CellElem";
+import { DEFAULT_BORDER, DEFAULT_COL_WIDTH, DEFAULT_ROW_HEIGHT } from "./constants";
+import { Cell } from "./model/Cell";
 import { Sheet } from "./model/Sheet";
-import { DEFAULT_BORDER, DEFAULT_ROW_HEIGHT, DEFAULT_COL_WIDTH } from "./constants";
 
 // CELL(0,0)
 // RANGE(0,0)(0,10)
@@ -59,17 +54,23 @@ const useStyles = createUseStyles({
   },
 });
 
-export function SpreadsheetGrid({
-  sheet,
-  width,
-  height,
-  renderCell,
-}: {
-  renderCell: GridCellRenderer;
-  width: number;
-  height: number;
-  sheet: Sheet;
-}) {
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+function base26(num: number) {
+  let output = [];
+  const radix = ALPHABET.length;
+
+  do {
+    let index = num % radix;
+    output.unshift(ALPHABET[index - 1]);
+    num = Math.trunc(num / radix);
+    console.log(num);
+  } while (num != 0);
+
+  console.log("output", output);
+  return output.join("");
+}
+
+export function SpreadsheetGrid({ sheet, width, height }: { width: number; height: number; sheet: Sheet }) {
   const styles = useStyles();
   const { overscanColumnCount, overscanRowCount, scrollToColumn, scrollToRow } = {
     overscanColumnCount: 0,
@@ -77,11 +78,37 @@ export function SpreadsheetGrid({
     scrollToColumn: undefined,
     scrollToRow: undefined,
   };
+  const [selectedCell, setSelectedCell] = usePrimitive<Cell>(sheet.selectedCell);
+
+  const onCellClick = useCallback((clickedCell: Cell) => {
+    setSelectedCell(clickedCell);
+  }, []);
+
+  const renderCell = useCallback(
+    function renderCell({ columnIndex, key, rowIndex, style }: GridCellProps) {
+      const cell = sheet.get(rowIndex, columnIndex);
+      if (!cell) {
+        return <div>This shouldn't happen</div>;
+      }
+
+      return (
+        <CellElem
+          style={style}
+          key={cell.row * SIZE + cell.col}
+          cell={cell}
+          onClick={onCellClick}
+          selected={selectedCell === cell}
+        />
+      );
+    },
+    [onCellClick, selectedCell, sheet],
+  );
 
   function renderHeaderCell({ columnIndex, key, style }: GridCellProps) {
     return (
       <div className={styles.headerCell} key={key} style={style}>
         {`C${columnIndex}`}
+        {/* {columnIndex + 1} - {base26(columnIndex + 1)} */}
       </div>
     );
   }

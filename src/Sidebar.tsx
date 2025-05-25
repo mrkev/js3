@@ -1,9 +1,8 @@
 import Editor from "@monaco-editor/react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import "./App.css";
-import { Cell } from "./model/Cell";
-import { Sheet } from "./model/Sheet";
+import { useEffect, useRef, useState } from "react";
 import { usePrimitive } from "structured-state";
+import "./App.css";
+import { Sheet } from "./model/Sheet";
 
 export function Sidebar({
   sheet,

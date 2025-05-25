@@ -1,4 +1,4 @@
-import { FloatingPanel } from "@/components/floating-panel"
+import { FloatingPanel } from "@/components/FloatingPanel";
 
 export function Spreadsheet() {
   return (
@@ -30,5 +30,5 @@ export function Spreadsheet() {
 
       <FloatingPanel />
     </div>
-  )
+  );
 }
