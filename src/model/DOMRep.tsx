@@ -34,7 +34,7 @@ export class DOMRep {
       // e.preventDefault();
       e.stopPropagation();
     });
-    for (let [key, value] of Object.entries(rest)) {
+    for (const [key, value] of Object.entries(rest)) {
       this.dom.setAttribute(key, value);
     }
   }
@@ -48,7 +48,7 @@ export class DOMRep {
     }
   }
 
-  static createElement(type: any, attrs: null | Object, ...children: Array<any>) {
+  static createElement(type: any, attrs: null | object, ...children: Array<any>) {
     if (children.length > 0) {
       throw new Error("Child elements are not supported");
     }

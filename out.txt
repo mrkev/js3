@@ -1,0 +1,70 @@
+
+/Users/kevin/Develop/play_play/js3/src/App.tsx
+  23:24  warning  'setSelectedCell' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/kevin/Develop/play_play/js3/src/Sidebar.tsx
+  47:58  warning  'monaco' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/kevin/Develop/play_play/js3/src/SpreadsheetGrid.tsx
+   58:10  warning  'base26' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   59:7   error    'output' is never reassigned. Use 'const' instead                                                                                                                                                                                                                                                                                                                prefer-const
+   63:9   error    'index' is never reassigned. Use 'const' instead                                                                                                                                                                                                                                                                                                                 prefer-const
+   73:42  warning  'width' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+   85:6   warning  React Hook useCallback has a missing dependency: 'sheet.selectedCell'. Either include it or remove the dependency array                                                                                                                                                                                                                                          react-hooks/exhaustive-deps
+   88:40  warning  'key' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  116:34  warning  'columnIndex' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  149:7   warning  'clientHeight' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  150:7   warning  'clientWidth' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  152:7   warning  'scrollHeight' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  155:7   warning  'scrollWidth' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  191:13  error    Do not pass children as props. Instead, nest children between the opening and closing tags                                                                                                                                                                                                                                                                       react/no-children-prop
+  230:5   warning  React Hook useCallback has missing dependencies: '_renderLeftSideCell', 'getColWidth', 'getRowHeight', 'height', 'overscanColumnCount', 'overscanRowCount', 'renderHeaderCell', 'scrollToColumn', 'scrollToRow', 'sheet.cols', 'sheet.rows', 'styles.BodyGrid', 'styles.HeaderGrid', and 'styles.container'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  233:22  error    Do not pass children as props. Instead, nest children between the opening and closing tags                                                                                                                                                                                                                                                                       react/no-children-prop
+
+/Users/kevin/Develop/play_play/js3/src/command/useDocumentKeyboardEvents.tsx
+  22:44  warning  Unexpected empty function 'keyupEvent'  @typescript-eslint/no-empty-function
+
+/Users/kevin/Develop/play_play/js3/src/debounce.tsx
+   1:29  warning  'useMemo' is defined but never used. Allowed unused vars must match /^_/u                                                @typescript-eslint/no-unused-vars
+   3:6   warning  'Parameters' is defined but never used. Allowed unused vars must match /^_/u                                             @typescript-eslint/no-unused-vars
+   3:17  warning  'T' is defined but never used. Allowed unused vars must match /^_/u                                                      @typescript-eslint/no-unused-vars
+   4:17  warning  'T' is defined but never used. Allowed unused vars must match /^_/u                                                      @typescript-eslint/no-unused-vars
+   6:33  error    The `Function` type accepts any function-like value.
+Prefer explicitly defining any function parameters and return type  @typescript-eslint/no-unsafe-function-type
+   7:36  error    The `Function` type accepts any function-like value.
+Prefer explicitly defining any function parameters and return type  @typescript-eslint/no-unsafe-function-type
+  24:46  error    The `Function` type accepts any function-like value.
+Prefer explicitly defining any function parameters and return type  @typescript-eslint/no-unsafe-function-type
+
+/Users/kevin/Develop/play_play/js3/src/model/Cell.tsx
+  87:11  warning  'autoJson' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  87:40  warning  'replace' is defined but never used. Allowed unused args must match /^_/u   @typescript-eslint/no-unused-vars
+
+/Users/kevin/Develop/play_play/js3/src/model/DOMRep.tsx
+  37:15  error  'key' is never reassigned. Use 'const' instead                                            prefer-const
+  37:20  error  'value' is never reassigned. Use 'const' instead                                          prefer-const
+  51:49  error  Prefer using the primitive `object` as a type name, rather than the upper-cased `Object`  @typescript-eslint/no-wrapper-object-types
+
+/Users/kevin/Develop/play_play/js3/src/model/Evaluator.ts
+   3:16  warning  'primitiveOf' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  14:5   error    Expected an assignment or function call and instead saw an expression          @typescript-eslint/no-unused-expressions
+
+/Users/kevin/Develop/play_play/js3/src/model/OrderedSet.tsx
+  1:10  warning  'JSONOfAuto' is defined but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+  1:22  warning  'ReplaceFunctions' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  6:28  warning  Unexpected empty method 'replace'                                                   @typescript-eslint/no-empty-function
+
+/Users/kevin/Develop/play_play/js3/src/model/Sheet.tsx
+   34:11  warning  'autoJson' is defined but never used. Allowed unused args must match /^_/u       @typescript-eslint/no-unused-vars
+   34:50  warning  'replace' is defined but never used. Allowed unused args must match /^_/u        @typescript-eslint/no-unused-vars
+   43:55  warning  'init' is defined but never used. Allowed unused args must match /^_/u           @typescript-eslint/no-unused-vars
+  213:34  warning  Unexpected empty function                                                        @typescript-eslint/no-empty-function
+  214:11  warning  'target' is defined but never used. Allowed unused args must match /^_/u         @typescript-eslint/no-unused-vars
+  214:19  warning  'prop' is defined but never used. Allowed unused args must match /^_/u           @typescript-eslint/no-unused-vars
+  218:13  warning  'target' is defined but never used. Allowed unused args must match /^_/u         @typescript-eslint/no-unused-vars
+  218:21  warning  'thisArg' is defined but never used. Allowed unused args must match /^_/u        @typescript-eslint/no-unused-vars
+  218:30  warning  'argumentsList' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+✖ 43 problems (11 errors, 32 warnings)
+  5 errors and 0 warnings potentially fixable with the `--fix` option.
+

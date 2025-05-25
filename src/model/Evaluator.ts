@@ -11,7 +11,9 @@ export class Evaluator {
   constructor(readonly sheet: Sheet) {}
 
   queueEvaluation(cell: Cell, of: "cellanddeps" | "depsonly") {
-    of === "cellanddeps" && this.queue.push(cell);
+    if (of === "cellanddeps") {
+      this.queue.push(cell);
+    }
     // todo: recursive downstream
     for (const downstream of cell.feeds) {
       this.queue.push(downstream);

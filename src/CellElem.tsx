@@ -21,6 +21,6 @@ export const CellElem = React.memo(function CellElem({
       ref={cell.setRef}
       className={cx("cell", selected && "selected")}
       onClick={() => onClick(cell)}
-    ></div>
+    />
   );
 });

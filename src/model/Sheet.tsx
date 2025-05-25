@@ -31,7 +31,7 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
   readonly selectedCell: SPrimitive<Cell>;
   readonly selectionStatus = SPrimitive.of<"editing" | "superficial" | "widget">("superficial");
 
-  replace(autoJson: JSONOfAuto<SerializedSheet>, replace: ReplaceFunctions): void {
+  replace(_autoJson: JSONOfAuto<SerializedSheet>, _replace: ReplaceFunctions): void {
     throw new Error("Method not implemented.");
   }
 
@@ -108,6 +108,7 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     }
     const cell = this._grid[r][c];
     cell.strValue.set(value);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     queue && this.evaluator.queueEvaluation(cell, "cellanddeps");
     this.hashvalue.set(this.hashvalue.get() + 1);
     return this;

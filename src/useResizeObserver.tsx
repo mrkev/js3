@@ -7,7 +7,7 @@ export function useResizeObserver(element: Element | null): DOMRectReadOnly | nu
       return;
     }
     const resizeObserver = new ResizeObserver((entries: Array<ResizeObserverEntry>) => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         if (entry.target !== element) {
           continue;
         }

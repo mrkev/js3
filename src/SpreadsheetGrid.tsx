@@ -56,11 +56,11 @@ const useStyles = createUseStyles({
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 function base26(num: number) {
-  let output = [];
+  const output = [];
   const radix = ALPHABET.length;
 
   do {
-    let index = num % radix;
+    const index = num % radix;
     output.unshift(ALPHABET[index - 1]);
     num = Math.trunc(num / radix);
     console.log(num);
@@ -78,11 +78,14 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
     scrollToColumn: undefined,
     scrollToRow: undefined,
   };
-  const [selectedCell, setSelectedCell] = usePrimitive<Cell>(sheet.selectedCell);
+  const [selectedCell] = usePrimitive<Cell>(sheet.selectedCell);
 
-  const onCellClick = useCallback((clickedCell: Cell) => {
-    setSelectedCell(clickedCell);
-  }, []);
+  const onCellClick = useCallback(
+    (clickedCell: Cell) => {
+      sheet.selectedCell.set(clickedCell);
+    },
+    [sheet.selectedCell],
+  );
 
   const renderCell = useCallback(
     function renderCell({ columnIndex, key, rowIndex, style }: GridCellProps) {
@@ -104,22 +107,28 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
     [onCellClick, selectedCell, sheet],
   );
 
-  function renderHeaderCell({ columnIndex, key, style }: GridCellProps) {
-    return (
-      <div className={styles.headerCell} key={key} style={style}>
-        {`C${columnIndex}`}
-        {/* {columnIndex + 1} - {base26(columnIndex + 1)} */}
-      </div>
-    );
-  }
+  const renderHeaderCell = useCallback(
+    ({ columnIndex, key, style }: GridCellProps) => {
+      return (
+        <div className={styles.headerCell} key={key} style={style}>
+          {`C${columnIndex}`}
+          {/* {columnIndex + 1} - {base26(columnIndex + 1)} */}
+        </div>
+      );
+    },
+    [styles.headerCell],
+  );
 
-  function _renderLeftSideCell({ columnIndex, key, rowIndex, style }: GridCellProps) {
-    return (
-      <div className={styles.headerCell} key={key} style={style}>
-        {`R${rowIndex}`}
-      </div>
-    );
-  }
+  const _renderLeftSideCell = useCallback(
+    ({ columnIndex, key, rowIndex, style }: GridCellProps) => {
+      return (
+        <div className={styles.headerCell} key={key} style={style}>
+          {`R${rowIndex}`}
+        </div>
+      );
+    },
+    [styles.headerCell],
+  );
 
   const getRowHeight = useCallback(
     function getRowHeight({ index }: Index) {
@@ -227,7 +236,23 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
         </div>
       );
     },
-    [renderCell],
+    [
+      _renderLeftSideCell,
+      getColWidth,
+      getRowHeight,
+      height,
+      overscanColumnCount,
+      overscanRowCount,
+      renderCell,
+      renderHeaderCell,
+      scrollToColumn,
+      scrollToRow,
+      sheet.cols,
+      sheet.rows,
+      styles.BodyGrid,
+      styles.HeaderGrid,
+      styles.container,
+    ],
   );
 
   return <ScrollSync children={renderInScrollSync} />;

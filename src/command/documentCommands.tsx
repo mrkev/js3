@@ -1,10 +1,11 @@
 import { exhaustive } from "../exhaustive";
 import { Sheet } from "../model/Sheet";
+import { nullthrows } from "../nullthrows";
 import { CommandBlock } from "./Command";
 
 export const documentCommands = CommandBlock.create(["Project", "Selection"] as const, (command) => {
   return {
-    newProject: command(["KeyN", "alt", "meta"], async (e, project) => {
+    newProject: command(["KeyN", "alt", "meta"], async (e, _project) => {
       e?.preventDefault();
       e?.stopPropagation();
       alert("FOO");
@@ -17,7 +18,7 @@ export const documentCommands = CommandBlock.create(["Project", "Selection"] as 
       .helptext("New Project")
       .section("Project"),
 
-    save: command(["KeyS", "meta"], async (e, project) => {
+    save: command(["KeyS", "meta"], async (e, _project) => {
       e?.preventDefault();
       e?.stopPropagation();
       alert("BAR");
@@ -27,7 +28,7 @@ export const documentCommands = CommandBlock.create(["Project", "Selection"] as 
       .section("Project"),
 
     // Format
-    bold: command(["KeyB", "meta"], async (e, project) => {
+    bold: command(["KeyB", "meta"], async (e, _project) => {
       e?.preventDefault();
       e?.stopPropagation();
       alert("BOLD");
@@ -93,6 +94,6 @@ function selectMove(dir: "down" | "up" | "left" | "right", sheet: Sheet) {
     return;
   }
 
-  const newCell = sheet.get(newRow, newCol);
+  const newCell = nullthrows(sheet.get(newRow, newCol));
   sheet.selectedCell.set(newCell);
 }

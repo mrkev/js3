@@ -1,4 +1,5 @@
-import { useEffect, useRef, useMemo } from "react";
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
+import { useEffect, useRef } from "react";
 
 type Parameters<T> = T extends (...args: infer T) => any ? T : never;
 type ReturnType<T> = T extends (...args: any[]) => infer T ? T : never;
