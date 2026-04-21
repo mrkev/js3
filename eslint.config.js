@@ -1,6 +1,7 @@
 import { fixupConfigRules } from "@eslint/compat";
 import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
+import reactCompiler from "eslint-plugin-react-compiler";
 import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 import path from "node:path";
@@ -18,6 +19,7 @@ const compat = new FlatCompat({
 
 export default tseslint.config(
   eslint.configs.recommended,
+  reactCompiler.configs.recommended,
   ...tseslint.configs.recommended,
   {
     ignores: ["build", "components/**", "docs"],

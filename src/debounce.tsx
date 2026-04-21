@@ -22,30 +22,30 @@ export function debounce<T extends Function>(callback: T, time: number): Debounc
 }
 
 // useDebouncedEffect(() => console.log(x), 1000, [x])
-export function useDebouncedEffect<T extends Function>(
-  callback: T,
-  time: number,
-  deps: React.DependencyList | undefined,
-) {
-  const tRef = useRef<null | number>(null);
-  useEffect(
-    function () {
-      const timer = tRef.current;
-      if (timer) {
-        clearTimeout(timer);
-      }
-      console.log("B");
-      tRef.current = window.setTimeout(function () {
-        callback();
-      }, time);
+// export function useDebouncedEffect<T extends Function>(
+//   callback: T,
+//   time: number,
+//   deps: React.DependencyList | undefined,
+// ) {
+//   const tRef = useRef<null | number>(null);
+//   useEffect(
+//     function () {
+//       const timer = tRef.current;
+//       if (timer) {
+//         clearTimeout(timer);
+//       }
+//       console.log("B");
+//       tRef.current = window.setTimeout(function () {
+//         callback();
+//       }, time);
 
-      // return () => clearTimeout(timer);
-      // reset debounce.
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [time, callback, ...(deps || [])],
-  );
-}
+//       // return () => clearTimeout(timer);
+//       // reset debounce.
+//     },
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//     [time, callback, ...(deps || [])],
+//   );
+// }
 
 // export function useDebounced<T extends Function>(
 //   callback: T,
