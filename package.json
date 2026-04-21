@@ -39,7 +39,7 @@
     "@tailwindcss/vite": "^4.2.4",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
@@ -52,7 +52,7 @@
     "eslint-plugin-react-compiler": "19.1.0-rc.1-rc-af1b7da-20250421",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^16.5.0",
+    "globals": "^17.5.0",
     "input-otp": "1.4.2",
     "lucide-react": "^0.577.0",
     "prettier": "^3.8.3",
@@ -69,7 +69,6 @@
     "structured-state": "file:../substate/packages/structured-state",
     "tailwind-merge": "^3.5.0",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.8.3",
     "typescript-eslint": "^8.59.0",
     "vaul": "^1.1.2",
     "zod": "latest"
@@ -102,8 +101,8 @@
     "postcss": "^8",
     "postcss-import": "^16.1.1",
     "tailwindcss": "^4.2.4",
-    "typescript": "^5",
-    "vite": "^6.4.2"
+    "typescript": "^5.9.3",
+    "vite": "^8.0.9"
   },
   "packageManager": "pnpm@10.33.0"
 }
