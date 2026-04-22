@@ -1,7 +1,6 @@
 import Editor from "@monaco-editor/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { usePrimitive } from "structured-state";
-import "./App.css";
 import { Sheet } from "./model/Sheet";
 
 export function Sidebar({
@@ -12,17 +11,10 @@ export function Sidebar({
   // selectedCell: Cell;
   onEditorChange: (value: string | undefined) => void;
 }) {
-  const [editorValue, setEditorValue] = useState("");
   const [selectedCell] = usePrimitive(sheet.selectedCell);
+  const [editorValue] = usePrimitive(selectedCell.strValue);
 
   const editorRef = useRef<null | any>(null);
-  useEffect(() => {
-    setEditorValue(selectedCell?.strValue.get() ?? "");
-  }, [selectedCell]);
-
-  if (selectedCell == null) {
-    return null;
-  }
 
   return (
     <div

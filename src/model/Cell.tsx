@@ -23,16 +23,15 @@ export class Cell extends Structured<SCell, typeof Cell> {
 
   // Cells this cell sends data to. "children", in a dependency tree
   // todo: keep dep map separate, on evaluator?
-  feeds: Set<Cell> = new Set();
-  dependsOn: Set<Cell> = new Set();
+  readonly feeds: Set<Cell> = new Set();
+  readonly dependsOn: Set<Cell> = new Set();
 
-  readonly cellid: string;
   constructor(
+    readonly cellid: string,
     readonly row: number,
     readonly col: number,
   ) {
     super();
-    this.cellid = cellID(row, col);
   }
 
   // The value read by other cells (ie, number for an input range)
@@ -96,11 +95,13 @@ export class Cell extends Structured<SCell, typeof Cell> {
   }
 
   static of(row: number, col: number) {
-    return Structured.create(Cell, row, col);
+    const id = cellID(row, col);
+    return Structured.create(Cell, id, row, col);
   }
 
   static construct({ row, col }: SCell) {
-    return Structured.create(Cell, row, col);
+    const id = cellID(row, col);
+    return Structured.create(Cell, id, row, col);
   }
 }
 

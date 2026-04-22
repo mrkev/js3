@@ -35,7 +35,7 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     throw new Error("Method not implemented.");
   }
 
-  autoSimplify(): SerializedSheet {
+   autoSimplify(): SerializedSheet {
     const { rows, cols } = this;
     return { rows, cols };
   }

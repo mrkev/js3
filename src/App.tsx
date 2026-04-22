@@ -1,5 +1,4 @@
 import { FloatingPanel } from "@/components/floating-panel";
-import "@csstools/normalize.css";
 import { useEffect, useState } from "react";
 import { useContainer, usePrimitive } from "structured-state";
 import "./App.css";

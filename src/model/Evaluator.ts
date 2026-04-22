@@ -1,9 +1,9 @@
 import { Structured } from "structured-state";
+import { Cell } from "./Cell";
+import { DOMRep } from "./DOMRep";
 import { OrderedSet } from "./OrderedSet";
-import { Cell, primitiveOf } from "./Cell";
 import { Sheet } from "./Sheet";
 import { evalCellJS } from "./evaluateCellJS";
-import { DOMRep } from "./DOMRep";
 
 export class Evaluator {
   private readonly queue = Structured.create(OrderedSet<Cell>);

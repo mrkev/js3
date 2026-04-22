@@ -1,8 +1,5 @@
-import classNames from "classnames";
 import { useCallback } from "react";
-import { createUseStyles } from "react-jss";
 import { AutoSizer, Grid, GridCellProps, Index, ScrollSync, ScrollSyncChildProps, Size } from "react-virtualized";
-import "react-virtualized/styles.css";
 import { usePrimitive } from "structured-state";
 import { SIZE } from "./App";
 import { CellElem } from "./CellElem";
@@ -20,39 +17,8 @@ const gridStyle: React.CSSProperties = {
   // pointerEvents: "none",
 };
 
-const useStyles = createUseStyles({
-  // ".GridRow":
-  container: {
-    position: "relative",
-    display: "flex",
-    flexDirection: "row",
-  },
-  // ".LeftSideGridContainer":
-  corner: {
-    flex: "0 0 75px",
-    zIndex: 10,
-  },
-  headerCell: {
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    textAlign: "center",
-    borderRight: DEFAULT_BORDER,
-    borderBottom: DEFAULT_BORDER,
-    boxSizing: "border-box",
-    color: "#333",
-  },
-  HeaderGrid: {
-    width: "100%",
-    overflow: "hidden",
-  },
-  BodyGrid: {
-    width: "100%",
-  },
-});
+const HEADER_CELL_CLASS =
+  "w-full h-full flex flex-col justify-center items-center text-center border-r border-b border-[gray] box-border text-[#333]";
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 function base26(num: number) {
@@ -71,7 +37,6 @@ function base26(num: number) {
 }
 
 export function SpreadsheetGrid({ sheet, width, height }: { width: number; height: number; sheet: Sheet }) {
-  const styles = useStyles();
   const { overscanColumnCount, overscanRowCount, scrollToColumn, scrollToRow } = {
     overscanColumnCount: 0,
     overscanRowCount: 10,
@@ -107,28 +72,22 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
     [onCellClick, selectedCell, sheet],
   );
 
-  const renderHeaderCell = useCallback(
-    ({ columnIndex, key, style }: GridCellProps) => {
-      return (
-        <div className={styles.headerCell} key={key} style={style}>
-          {`C${columnIndex}`}
-          {/* {columnIndex + 1} - {base26(columnIndex + 1)} */}
-        </div>
-      );
-    },
-    [styles.headerCell],
-  );
+  const renderHeaderCell = useCallback(({ columnIndex, key, style }: GridCellProps) => {
+    return (
+      <div className={HEADER_CELL_CLASS} key={key} style={style}>
+        {`C${columnIndex}`}
+        {/* {columnIndex + 1} - {base26(columnIndex + 1)} */}
+      </div>
+    );
+  }, []);
 
-  const _renderLeftSideCell = useCallback(
-    ({ columnIndex, key, rowIndex, style }: GridCellProps) => {
-      return (
-        <div className={styles.headerCell} key={key} style={style}>
-          {`R${rowIndex}`}
-        </div>
-      );
-    },
-    [styles.headerCell],
-  );
+  const _renderLeftSideCell = useCallback(({ columnIndex, key, rowIndex, style }: GridCellProps) => {
+    return (
+      <div className={HEADER_CELL_CLASS} key={key} style={style}>
+        {`R${rowIndex}`}
+      </div>
+    );
+  }, []);
 
   const getRowHeight = useCallback(
     function getRowHeight({ index }: Index) {
@@ -164,7 +123,7 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
       scrollWidth,
     }: ScrollSyncChildProps) => {
       return (
-        <div className={styles.container}>
+        <div className="relative flex flex-row">
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div
               style={{
@@ -201,7 +160,7 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
               <>
                 {/* HEADER TOP */}
                 <Grid
-                  className={classNames(styles.HeaderGrid, "overflow_hidden_important")}
+                  className="w-full overflow_hidden_important"
                   columnWidth={getColWidth}
                   columnCount={sheet.cols}
                   height={DEFAULT_ROW_HEIGHT}
@@ -228,7 +187,7 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
                   scrollToRow={scrollToRow}
                   width={width}
                   onScroll={onScroll}
-                  className={styles.BodyGrid}
+                  className="w-full"
                 />
               </>
             )}
@@ -249,9 +208,6 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
       scrollToRow,
       sheet.cols,
       sheet.rows,
-      styles.BodyGrid,
-      styles.HeaderGrid,
-      styles.container,
     ],
   );
 

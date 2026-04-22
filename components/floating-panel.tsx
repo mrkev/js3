@@ -1,5 +1,3 @@
-"use client";
-
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/src/model/Sheet";
@@ -234,18 +232,10 @@ export function FormulaSection({
   // selectedCell: Cell;
   onEditorChange: (value: string | undefined) => void;
 }) {
-  const [formula, setFormula] = useState("// Enter your formula here\n=SUM(A1:A10)");
-  const [editorValue, setEditorValue] = useState("");
   const [selectedCell] = usePrimitive(sheet.selectedCell);
+  const [editorValue] = usePrimitive(selectedCell.strValue);
 
   const editorRef = useRef<null | any>(null);
-  useEffect(() => {
-    setEditorValue(selectedCell?.strValue.get() ?? "");
-  }, [selectedCell]);
-
-  if (selectedCell == null) {
-    return null;
-  }
 
   return (
     <div className="px-2 pb-2 space-y-2">
