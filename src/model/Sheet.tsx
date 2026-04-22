@@ -1,13 +1,4 @@
-import {
-  InitFunctions,
-  JSONOfAuto,
-  map,
-  number,
-  ReplaceFunctions,
-  SMap,
-  SPrimitive,
-  Structured,
-} from "structured-state";
+import { InitFunctions, JSONOfAuto, map, ReplaceFunctions, SMap, SPrimitive, Structured } from "structured-state";
 import { nullthrows } from "../nullthrows";
 import { Cell } from "./Cell";
 import { DOMRep } from "./DOMRep";
@@ -26,43 +17,43 @@ type SerializedSheet = {
  *   re-created.
  */
 export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
-  readonly hashvalue = number(0);
   readonly evaluator: Evaluator;
-  readonly selectedCell: SPrimitive<Cell>;
-  readonly selectionStatus = SPrimitive.of<"editing" | "superficial" | "widget">("superficial");
-
-  replace(_autoJson: JSONOfAuto<SerializedSheet>, _replace: ReplaceFunctions): void {
-    throw new Error("Method not implemented.");
-  }
-
-   autoSimplify(): SerializedSheet {
-    const { rows, cols } = this;
-    return { rows, cols };
-  }
-
-  static construct(auto: JSONOfAuto<SerializedSheet>, init: InitFunctions): Sheet {
-    return Structured.create(Sheet, auto.rows, auto.cols, map(), []);
-  }
-
-  static ofDimensions(rows: number, cols: number) {
-    const grid = [...new Array(rows)].map((_, r) => [...new Array(cols)].map((_, c) => Cell.of(r, c)));
-    const sheet = Structured.create(Sheet, rows, cols, map(), grid);
-    return sheet;
-  }
-
-  _rowSizes: { [row: number]: number } = {};
-  _colSizes: { [col: number]: number } = {};
 
   constructor(
     readonly rows: number,
     readonly cols: number,
     readonly cellsWithValue: SMap<CellID, Cell>,
     readonly _grid: Array<Array<Cell>>,
+    readonly selectedCell: SPrimitive<Cell>,
+    readonly selectionStatus = SPrimitive.of<"editing" | "superficial" | "widget">("superficial"),
+    readonly _rowSizes: { [row: number]: number } = {},
+    readonly _colSizes: { [col: number]: number } = {},
   ) {
     super();
     this.evaluator = new Evaluator(this);
-    this.selectedCell = SPrimitive.of<Cell>(this._grid[0][0]);
     (window as any).sheet = this;
+  }
+
+  replace(_autoJson: JSONOfAuto<SerializedSheet>, _replace: ReplaceFunctions): void {
+    throw new Error("Method not implemented.");
+  }
+
+  autoSimplify(): SerializedSheet {
+    const { rows, cols } = this;
+    return { rows, cols };
+  }
+
+  static construct(auto: JSONOfAuto<SerializedSheet>, init: InitFunctions): Sheet {
+    throw new Error("unimplemented");
+    // const grid = [];
+    // return Structured.create(Sheet, auto.rows, auto.cols, map(), grid, SPrimitive.of<Cell>(grid[0][0]));
+  }
+
+  static ofDimensions(rows: number, cols: number) {
+    const grid = [...new Array(rows)].map((_, r) => [...new Array(cols)].map((_, c) => Cell.of(r, c)));
+
+    const sheet = Structured.create(Sheet, rows, cols, map(), grid, SPrimitive.of<Cell>(grid[0][0]));
+    return sheet;
   }
 
   registerWidgetAtCell(cell: Cell) {
@@ -110,7 +101,6 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     cell.strValue.set(value);
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     queue && this.evaluator.queueEvaluation(cell, "cellanddeps");
-    this.hashvalue.set(this.hashvalue.get() + 1);
     return this;
   }
 
@@ -125,40 +115,6 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     }
     const cell = this._grid[r][c];
     return cell ? cell : null;
-  }
-
-  ///////////////////////// DISPLAY + SIZES //////////////////////////////
-
-  getExplicitRowHeight(row: number): number | null {
-    if (this._rowSizes[row] === undefined) {
-      return null;
-    } else {
-      return this._rowSizes[row];
-    }
-  }
-
-  setExplicitRowHeight(row: number, val: number | null) {
-    if (val === null) {
-      delete this._rowSizes[row];
-    } else {
-      this._rowSizes[row] = val;
-    }
-  }
-
-  getExplicitColWidth(col: number) {
-    if (this._colSizes[col] === undefined) {
-      return null;
-    } else {
-      return this._colSizes[col];
-    }
-  }
-
-  setExplicitColWidth(col: number, val: number | null) {
-    if (val === null) {
-      delete this._colSizes[col];
-    } else {
-      this._colSizes[col] = val;
-    }
   }
 
   //////////////////////////// CELL PROXY //////////////////////////////
@@ -221,3 +177,39 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     });
   };
 }
+
+export const sheetFn = {
+  ///////////////////////// DISPLAY + SIZES //////////////////////////////
+
+  getExplicitRowHeight(sheet: Sheet, row: number): number | null {
+    if (sheet._rowSizes[row] === undefined) {
+      return null;
+    } else {
+      return sheet._rowSizes[row];
+    }
+  },
+
+  setExplicitRowHeight(sheet: Sheet, row: number, val: number | null) {
+    if (val === null) {
+      delete sheet._rowSizes[row];
+    } else {
+      sheet._rowSizes[row] = val;
+    }
+  },
+
+  getExplicitColWidth(sheet: Sheet, col: number): number | null {
+    if (sheet._colSizes[col] === undefined) {
+      return null;
+    } else {
+      return sheet._colSizes[col];
+    }
+  },
+
+  setExplicitColWidth(sheet: Sheet, col: number, val: number | null) {
+    if (val === null) {
+      delete sheet._colSizes[col];
+    } else {
+      sheet._colSizes[col] = val;
+    }
+  },
+};

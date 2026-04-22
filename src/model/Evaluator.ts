@@ -1,5 +1,5 @@
 import { Structured } from "structured-state";
-import { Cell } from "./Cell";
+import { Cell, cellFn } from "./Cell";
 import { DOMRep } from "./DOMRep";
 import { OrderedSet } from "./OrderedSet";
 import { Sheet } from "./Sheet";
@@ -25,7 +25,7 @@ export class Evaluator {
     while ((next = this.queue.pop())) {
       evaluateCell(next, this.sheet);
       // todo: separate rendering?
-      next.render();
+      cellFn.render(next);
     }
   }
 }
@@ -72,7 +72,7 @@ export function cellChanged(cell: Cell) {
   // Separate set because "evaluate" modifies cell.feeds
   toEval.forEach((cell) => {
     // evaluateCell(cell, cell.sheet);
-    cell.render();
+    cellFn.render(cell);
   });
   // TODO: call evaluate on cells that depend on this one
 }

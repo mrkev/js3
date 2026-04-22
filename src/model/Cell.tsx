@@ -13,11 +13,14 @@ type SCell = {
 };
 
 export class Cell extends Structured<SCell, typeof Cell> {
+  // Content
+
   // The raw string typed into the cell
   public readonly strValue = string("");
-
   // The data this cell renders
   public contentValue: CellEvalResult = "";
+  // The value read by other cells (ie, number for an input range)
+  private _primitiveValue: Primitive = "";
 
   public readonly cellRef = React.createRef<HTMLDivElement | null>();
 
@@ -34,15 +37,19 @@ export class Cell extends Structured<SCell, typeof Cell> {
     super();
   }
 
-  // The value read by other cells (ie, number for an input range)
-  _primitiveValue: Primitive = "";
   getPrimitiveValue() {
     return this._primitiveValue;
   }
 
   updatePrimitive() {
-    const primitive = primitiveOf(this.contentValue);
-    this._primitiveValue = primitive;
+    const content = this.contentValue;
+    if (content instanceof DOMRep) {
+      this._primitiveValue = content.getPrimitiveValue();
+    } else if (content instanceof Error) {
+      this._primitiveValue = content.message;
+    } else {
+      this._primitiveValue = content;
+    }
   }
 
   setPrimitiveValue(primitive: Primitive) {
@@ -52,7 +59,7 @@ export class Cell extends Structured<SCell, typeof Cell> {
   readonly setRef = (elem: HTMLDivElement | null) => {
     this.cellRef.current = elem;
     if (elem) {
-      this.render();
+      cellFn.render(this);
     }
   };
 
@@ -65,21 +72,6 @@ export class Cell extends Structured<SCell, typeof Cell> {
   removeDependency(dependency: Cell) {
     this.dependsOn.delete(dependency);
     dependency.feeds.delete(this);
-  }
-
-  render() {
-    // console.log("RENDER");
-    if (this.cellRef.current == null) {
-      console.log("No element to render to");
-      return;
-    }
-
-    if (this.cellRef.current.firstChild) {
-      this.cellRef.current.removeChild(this.cellRef.current.firstChild);
-    }
-
-    const node = nodeOfContent(this.contentValue);
-    this.cellRef.current.appendChild(node);
   }
 
   ////////////////////
@@ -105,15 +97,19 @@ export class Cell extends Structured<SCell, typeof Cell> {
   }
 }
 
-export function primitiveOf(content: CellEvalResult): Primitive {
-  if (content instanceof DOMRep) {
-    return content.getPrimitiveValue();
-  } else if (content instanceof Error) {
-    return content.message;
-  } else {
-    return content;
-  }
-}
+export const cellFn = {
+  render(cell: Cell) {
+    if (cell.cellRef.current == null) {
+      console.log("No element to render to");
+      return;
+    }
+    if (cell.cellRef.current.firstChild) {
+      cell.cellRef.current.removeChild(cell.cellRef.current.firstChild);
+    }
+    const node = nodeOfContent(cell.contentValue);
+    cell.cellRef.current.appendChild(node);
+  },
+};
 
 /** Returns the HTML to be directly set in the cell DOM */
 function nodeOfContent(content: CellEvalResult): HTMLElement | Text {

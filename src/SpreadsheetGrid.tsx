@@ -5,7 +5,7 @@ import { SIZE } from "./App";
 import { CellElem } from "./CellElem";
 import { DEFAULT_BORDER, DEFAULT_COL_WIDTH, DEFAULT_ROW_HEIGHT } from "./constants";
 import { Cell } from "./model/Cell";
-import { Sheet } from "./model/Sheet";
+import { Sheet, sheetFn } from "./model/Sheet";
 
 // CELL(0,0)
 // RANGE(0,0)(0,10)
@@ -91,7 +91,7 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
 
   const getRowHeight = useCallback(
     function getRowHeight({ index }: Index) {
-      const explicitHeight = sheet.getExplicitRowHeight(index);
+      const explicitHeight = sheetFn.getExplicitRowHeight(sheet, index);
       if (explicitHeight === null) {
         return DEFAULT_ROW_HEIGHT;
       } else {
@@ -102,7 +102,7 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
   );
   const getColWidth = useCallback(
     function getColWidth({ index }: Index) {
-      const explicitWidth = sheet.getExplicitColWidth(index);
+      const explicitWidth = sheetFn.getExplicitColWidth(sheet, index);
       if (explicitWidth === null) {
         return DEFAULT_COL_WIDTH;
       } else {

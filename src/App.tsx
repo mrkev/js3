@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useContainer, usePrimitive } from "structured-state";
 import "./App.css";
 import { useDocumentKeyboardEvents } from "./command/useDocumentKeyboardEvents";
-import { Cell } from "./model/Cell";
+import { Cell, cellFn } from "./model/Cell";
 import { evaluateCell } from "./model/Evaluator";
 import { Sheet } from "./model/Sheet";
 import { SpreadsheetGrid } from "./SpreadsheetGrid";
@@ -43,7 +43,7 @@ export function App() {
           if (value == null) return;
           selectedCell.strValue.set(value);
           evaluateCell(selectedCell, sheet);
-          selectedCell.render();
+          cellFn.render(selectedCell);
         }}
       />
 
@@ -53,7 +53,7 @@ export function App() {
           if (value == null) return;
           selectedCell.strValue.set(value);
           evaluateCell(selectedCell, sheet);
-          selectedCell.render();
+          cellFn.render(selectedCell);
         }}
       /> */}
     </>
