@@ -5,7 +5,7 @@ import "./App.css";
 import { useDocumentKeyboardEvents } from "./command/useDocumentKeyboardEvents";
 import { Cell, cellFn } from "./model/Cell";
 import { evaluateCell } from "./model/Evaluator";
-import { Sheet } from "./model/Sheet";
+import { Sheet, sheetFn } from "./model/Sheet";
 import { SpreadsheetGrid } from "./SpreadsheetGrid";
 import useClientSize from "./useClientSize";
 
@@ -27,7 +27,7 @@ export function App() {
   useEffect(() => {
     // for any initial .sets, note this also renders right now but might
     // be good to separate evaluation and rendering perhaps
-    sheet.flushEvalQueue();
+    sheetFn.flushEvalQueue(sheet);
   }, [sheet]);
 
   const [windowWidth, windowHeight] = useClientSize();

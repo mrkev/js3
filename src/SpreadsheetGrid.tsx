@@ -54,7 +54,7 @@ export function SpreadsheetGrid({ sheet, width, height }: { width: number; heigh
 
   const renderCell = useCallback(
     function renderCell({ columnIndex, key, rowIndex, style }: GridCellProps) {
-      const cell = sheet.get(rowIndex, columnIndex);
+      const cell = sheetFn.get(sheet, rowIndex, columnIndex);
       if (!cell) {
         return <div>This shouldn't happen</div>;
       }

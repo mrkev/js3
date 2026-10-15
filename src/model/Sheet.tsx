@@ -75,7 +75,7 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
 
     const cid = e.target.dataset["cellid"];
     const { row, col } = posOfId(cid as CellID);
-    const cell = nullthrows(this.get(row, col));
+    const cell = nullthrows(sheetFn.get(this, row, col));
 
     cell.updatePrimitive();
     this.evaluator.queueEvaluation(cell, "depsonly");
@@ -102,19 +102,6 @@ export class Sheet extends Structured<SerializedSheet, typeof Sheet> {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     queue && this.evaluator.queueEvaluation(cell, "cellanddeps");
     return this;
-  }
-
-  flushEvalQueue() {
-    this.evaluator.evalAll();
-    return this;
-  }
-
-  get(r: number, c: number): Cell | null {
-    if (r >= this.rows || c >= this.cols) {
-      return null;
-    }
-    const cell = this._grid[r][c];
-    return cell ? cell : null;
   }
 
   //////////////////////////// CELL PROXY //////////////////////////////
@@ -211,5 +198,20 @@ export const sheetFn = {
     } else {
       sheet._colSizes[col] = val;
     }
+  },
+
+  ///////////////////////// OTHER //////////////////////////////
+
+  flushEvalQueue(sheet: Sheet): Sheet {
+    sheet.evaluator.evalAll();
+    return sheet;
+  },
+
+  get(sheet: Sheet, r: number, c: number): Cell | null {
+    if (r >= sheet.rows || c >= sheet.cols) {
+      return null;
+    }
+    const cell = sheet._grid[r][c];
+    return cell ? cell : null;
   },
 };

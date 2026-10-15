@@ -1,5 +1,5 @@
 import { exhaustive } from "../exhaustive";
-import { Sheet } from "../model/Sheet";
+import { Sheet, sheetFn } from "../model/Sheet";
 import { nullthrows } from "../nullthrows";
 import { CommandBlock } from "./Command";
 
@@ -94,6 +94,6 @@ function selectMove(dir: "down" | "up" | "left" | "right", sheet: Sheet) {
     return;
   }
 
-  const newCell = nullthrows(sheet.get(newRow, newCol));
+  const newCell = nullthrows(sheetFn.get(sheet, newRow, newCol));
   sheet.selectedCell.set(newCell);
 }
