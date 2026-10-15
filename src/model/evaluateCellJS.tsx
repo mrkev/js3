@@ -10,7 +10,7 @@ export function evalCellJS(src: string, sheet: Sheet, calledFromCell: Cell): Cel
     const wrappedSrc = `function eCell () {
       /** @jsx DOMRep.createElement */ return ${src}; }`;
     const { code: transformedSrc } = (window as any).Babel.transform(wrappedSrc, {
-      plugins: ["transform-react-jsx"],
+      plugins: [["transform-react-jsx", { runtime: "classic" }]],
     });
 
     // eslint-disable-next-line no-new-func
